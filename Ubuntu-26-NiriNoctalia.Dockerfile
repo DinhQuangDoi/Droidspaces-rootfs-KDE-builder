@@ -44,14 +44,14 @@ COPY --from=anland-builder /anland/producers/niri/overlay /anland-patch
 
 WORKDIR /niri
 # Apply anland backend patch
-cp -r /anland-patch/niri/src/backend/anland.rs src/backend/
-cp -r /anland-patch/niri/src/backend/anland_input.rs src/backend/
-cp -r /anland-patch/niri/src/backend/mod.rs src/backend/
-cp -r /anland-patch/niri/src/cli.rs src/
-cp -r /anland-patch/niri/src/main.rs src/
-cp -r /anland-patch/niri/src/niri.rs src/
-cp -r /anland-patch/niri/Cargo.toml .
-cp -r /anland-patch/anland-sys .
+RUN cp -r /anland-patch/niri/src/backend/anland.rs src/backend/ && \
+    cp -r /anland-patch/niri/src/backend/anland_input.rs src/backend/ && \
+    cp -r /anland-patch/niri/src/backend/mod.rs src/backend/ && \
+    cp -r /anland-patch/niri/src/cli.rs src/ && \
+    cp -r /anland-patch/niri/src/main.rs src/ && \
+    cp -r /anland-patch/niri/src/niri.rs src/ && \
+    cp -r /anland-patch/niri/Cargo.toml . && \
+    cp -r /anland-patch/anland-sys .
 
 # Build niri with anland backend
 RUN cargo build --release --bin niri && \

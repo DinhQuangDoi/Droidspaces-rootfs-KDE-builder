@@ -43,14 +43,14 @@ RUN git clone --depth=1 --branch ${NIRI_TAG} ${NIRI_REPO} niri
 COPY --from=anland-builder /anland/producers/niri/overlay /anland-patch
 
 WORKDIR /niri
-cp -r /anland-patch/niri/src/backend/anland.rs src/backend/
-cp -r /anland-patch/niri/src/backend/anland_input.rs src/backend/
-cp -r /anland-patch/niri/src/backend/mod.rs src/backend/
-cp -r /anland-patch/niri/src/cli.rs src/
-cp -r /anland-patch/niri/src/main.rs src/
-cp -r /anland-patch/niri/src/niri.rs src/
-cp -r /anland-patch/niri/Cargo.toml .
-cp -r /anland-patch/anland-sys .
+RUN cp -r /anland-patch/niri/src/backend/anland.rs src/backend/ && \
+    cp -r /anland-patch/niri/src/backend/anland_input.rs src/backend/ && \
+    cp -r /anland-patch/niri/src/backend/mod.rs src/backend/ && \
+    cp -r /anland-patch/niri/src/cli.rs src/ && \
+    cp -r /anland-patch/niri/src/main.rs src/ && \
+    cp -r /anland-patch/niri/src/niri.rs src/ && \
+    cp -r /anland-patch/niri/Cargo.toml . && \
+    cp -r /anland-patch/anland-sys .
 
 RUN cargo build --release --bin niri && \
     mkdir -p /out/niri && \
