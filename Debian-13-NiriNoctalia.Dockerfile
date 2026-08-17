@@ -27,12 +27,13 @@ ARG NIRI_TAG=v26.04
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git curl build-essential pkg-config libssl-dev libwayland-dev wayland-protocols \
     libxkbcommon-dev libegl-dev libgles2-mesa-dev libinput-dev libudev-dev \
-    libseat-dev libpipewire-0.3-dev libdrm-dev \
+    libseat-dev libpipewire-0.3-dev libdrm-dev libgbm-dev libpango1.0-dev \
+    libdisplay-info-dev \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain nightly-2024-12-01
+# Install Rust (stable 1.87, matches anland fork CI)
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.87
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 WORKDIR /build

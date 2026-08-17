@@ -30,11 +30,12 @@ RUN dnf install -y --setopt=install_weak_deps=False \
     libxkbcommon-devel mesa-libEGL-devel mesa-libGLES-devel \
     libinput-devel libudev-devel \
     libseat-devel pipewire-devel libdrm-devel \
+    mesa-libgbm-devel pango-devel libdisplay-info-devel \
     ca-certificates \
     && dnf clean all
 
-# Install Rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain nightly-2024-12-01
+# Install Rust (stable 1.87, matches anland fork CI)
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.87
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 WORKDIR /build

@@ -28,11 +28,11 @@ RUN pacman -Sy --noconfirm --needed \
     git curl base-devel pkgconf openssl \
     wayland wayland-protocols \
     libxkbcommon mesa libinput systemd \
-    libseat pipewire libdrm \
+    libseat pipewire libdrm libgbm pango libdisplay-info \
     && rm -rf /var/cache/pacman/pkg/*
 
-# Install Rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain nightly-2024-12-01
+# Install Rust (stable 1.87, matches anland fork CI)
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.87
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 WORKDIR /build
