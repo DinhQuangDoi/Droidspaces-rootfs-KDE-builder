@@ -139,6 +139,7 @@ RUN pacman -S --noconfirm --needed \
     kmod tzdata tar \
     # Wayland/图形栈
     wayland libxkbcommon mesa libinput libseat pipewire wireplumber \
+    libdisplay-info \
     noto-fonts-cjk noto-fonts-emoji \
     alacritty rofi pcmanfm \
     lxappearance qt6ct && \

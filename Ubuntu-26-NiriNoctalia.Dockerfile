@@ -172,6 +172,7 @@ RUN apt-get update && \
     # Wayland/图形栈
     libwayland-client0 libwayland-server0 libwayland-egl1 libegl1 libgles2 \
     libxkbcommon0 libdrm2 libinput10 libudev1 libseat1 \
+    libdisplay-info3 \
     pipewire pipewire-pulse wireplumber \
     # 字体
     fonts-noto-cjk fonts-noto-color-emoji \

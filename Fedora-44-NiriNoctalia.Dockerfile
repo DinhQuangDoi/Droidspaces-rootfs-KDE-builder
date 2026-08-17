@@ -146,6 +146,7 @@ RUN dnf install -y --setopt=install_weak_deps=False \
     # Wayland/图形栈运行时
     dnf install -y --setopt=install_weak_deps=False \
     libwayland-client wayland libxkbcommon libdrm libinput libseat pipewire pipewire-pulse wireplumber \
+    libdisplay-info \
     google-noto-cjk-fonts google-noto-emoji-color-fonts \
     alacritty rofi pcmanfm \
     lxappearance qt6ct && \
