@@ -28,7 +28,7 @@ RUN pacman -Sy --noconfirm --needed \
     git curl base-devel pkgconf openssl \
     wayland wayland-protocols \
     libxkbcommon mesa libinput systemd \
-    libseat pipewire libdrm libgbm pango libdisplay-info \
+    libseat pipewire libdrm libgbm pango libdisplay-info clang \
     && rm -rf /var/cache/pacman/pkg/*
 
 # Install Rust (stable 1.87, matches anland fork CI)

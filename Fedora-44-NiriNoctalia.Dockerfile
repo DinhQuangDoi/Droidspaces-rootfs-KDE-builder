@@ -30,7 +30,7 @@ RUN dnf install -y --setopt=install_weak_deps=False \
     libxkbcommon-devel mesa-libEGL-devel mesa-libGLES-devel \
     libinput-devel libudev-devel \
     libseat-devel pipewire-devel libdrm-devel \
-    mesa-libgbm-devel pango-devel libdisplay-info-devel \
+    mesa-libgbm-devel pango-devel libdisplay-info-devel libclang-devel \
     ca-certificates \
     && dnf clean all
 
