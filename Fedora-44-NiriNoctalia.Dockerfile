@@ -1,21 +1,21 @@
 # Multi-stage build for Niri + Noctalia + Anland on Fedora 44
-# Stage 1: Build anland daemon
+# Stage 1: Clone anland source (provides the niri backend patch)
 ARG TARGETPLATFORM
-FROM fedora:44 AS anland-builder
+FROM fedora:44 AS anland-source
 
 ENV DEBIAN_FRONTEND=noninteractive
 ARG ANLAND_REPO=https://github.com/DinhQuangDoi/anland.git
 ARG ANLAND_BRANCH=main
 
 RUN dnf install -y --setopt=install_weak_deps=False \
-    git make gcc gcc-c++ pkgconfig openssl-devel ca-certificates curl \
+    git ca-certificates \
     && dnf clean all
 
 WORKDIR /anland
 RUN git clone --depth=1 --branch ${ANLAND_BRANCH} ${ANLAND_REPO} . && \
-    make -C daemon -j$(nproc) && \
-    mkdir -p /out/anland && \
-    cp daemon/anland-daemon /out/anland/
+    mkdir -p /out/patch && \
+    cp -r producers/niri/overlay/niri /out/patch/niri && \
+    cp -r producers/niri/anland-sys /out/patch/anland-sys
 
 # Stage 2: Build niri with anland backend
 FROM fedora:44 AS niri-builder
@@ -39,9 +39,9 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 
 WORKDIR /build
 RUN git clone --depth=1 --branch ${NIRI_TAG} ${NIRI_REPO} niri
-COPY --from=anland-builder /anland/producers/niri/overlay /anland-patch
+COPY --from=anland-source /out/patch /anland-patch
 
-WORKDIR /niri
+WORKDIR /build/niri
 RUN cp -r /anland-patch/niri/src/backend/anland.rs src/backend/ && \
     cp -r /anland-patch/niri/src/backend/anland_input.rs src/backend/ && \
     cp -r /anland-patch/niri/src/backend/mod.rs src/backend/ && \
@@ -83,7 +83,7 @@ RUN dnf install -y --setopt=install_weak_deps=False \
 
 WORKDIR /build
 RUN git clone --depth=1 --branch ${NOCTALIA_BRANCH} ${NOCTALIA_REPO} noctalia
-WORKDIR /noctalia
+WORKDIR /build/noctalia
 
 RUN meson setup build-release --buildtype=release --prefix=/usr -Dnative_optimizations=false && \
     meson compile -C build-release && \
@@ -125,7 +125,6 @@ COPY scripts/systemd257.sh /usr/local/sbin/systemd257
 COPY scripts/install-anland-kde.sh /usr/local/sbin/install-anland-kde
 
 # 复制 systemd services
-COPY scripts/start/anland-daemon.service /etc/systemd/system/
 COPY scripts/start/niri.service /etc/systemd/system/
 COPY scripts/start/noctalia.service /etc/systemd/system/
 
@@ -156,7 +155,6 @@ RUN dnf install -y --setopt=install_weak_deps=False \
     rm -rf /var/cache/dnf
 
 # 复制构建产物
-COPY --from=anland-builder /out/anland/anland-daemon /usr/local/bin/anland-daemon
 COPY --from=niri-builder /out/niri/niri /usr/local/bin/niri
 COPY --from=noctalia-builder /out/noctalia/usr/bin/noctalia /usr/local/bin/noctalia
 COPY --from=noctalia-builder /out/noctalia/usr/share/noctalia /usr/local/share/noctalia
@@ -365,9 +363,8 @@ WantedBy=multi-user.target
 EOF_DHCP
 ln -sf /etc/systemd/system/ds-dhcp.service /etc/systemd/system/multi-user.target.wants/ds-dhcp.service
 
-# Enable anland, niri, noctalia services
+# Enable niri, noctalia services
 mkdir -p /etc/systemd/system/multi-user.target.wants
-ln -sf /etc/systemd/system/anland-daemon.service /etc/systemd/system/multi-user.target.wants/anland-daemon.service
 ln -sf /etc/systemd/system/niri.service /etc/systemd/system/multi-user.target.wants/niri.service
 ln -sf /etc/systemd/system/noctalia.service /etc/systemd/system/multi-user.target.wants/noctalia.service
 

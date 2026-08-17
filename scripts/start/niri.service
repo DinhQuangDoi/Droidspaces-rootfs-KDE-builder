@@ -1,8 +1,6 @@
 [Unit]
 Description=Niri Compositor (Anland Backend)
 Documentation=https://github.com/niri-wm/niri
-After=anland-daemon.service
-Wants=anland-daemon.service
 
 [Service]
 Type=simple
@@ -19,6 +17,7 @@ Environment=WAYLAND_DISPLAY=wayland-0
 Environment=QT_QPA_PLATFORM=wayland
 Environment=GTK_THEME=Adwaita:dark
 ExecStartPre=/bin/bash -lc 'mkdir -p /run/user/1000 && chown 1000:1000 /run/user/1000'
+ExecStartPre=/bin/bash -lc 'for i in $(seq 1 60); do [ -S /run/display.sock ] && exit 0; sleep 1; done; exit 1'
 ExecStart=/usr/local/bin/niri --anland
 Restart=on-failure
 RestartSec=2
