@@ -11,10 +11,9 @@ RUN dnf install -y --setopt=install_weak_deps=False \
     git make gcc gcc-c++ pkgconfig openssl-devel ca-certificates curl \
     && dnf clean all
 
-WORKDIR /build
-RUN git clone --depth=1 --branch ${ANLAND_BRANCH} ${ANLAND_REPO} anland
 WORKDIR /anland
-RUN make -C daemon -j$(nproc) && \
+RUN git clone --depth=1 --branch ${ANLAND_BRANCH} ${ANLAND_REPO} . && \
+    make -C daemon -j$(nproc) && \
     mkdir -p /out/anland && \
     cp daemon/anland-daemon /out/anland/
 
