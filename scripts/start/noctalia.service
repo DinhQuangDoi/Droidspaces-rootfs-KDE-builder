@@ -1,0 +1,25 @@
+[Unit]
+Description=Noctalia Shell (Wayland)
+Documentation=https://github.com/noctalia-dev/noctalia
+After=niri.service
+Wants=niri.service
+
+[Service]
+Type=simple
+User=1000
+PAMName=login
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+Environment=WAYLAND_DISPLAY=wayland-0
+Environment=QT_QPA_PLATFORM=wayland
+Environment=GTK_THEME=Adwaita:dark
+ExecStartPre=/bin/bash -lc 'until [ -S /run/user/1000/wayland-0 ]; do sleep 0.5; done'
+ExecStart=/usr/local/bin/noctalia
+Restart=on-failure
+RestartSec=2
+StartLimitIntervalSec=60
+StartLimitBurst=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -24,7 +24,7 @@ on:
         type: string
         default: 'Gold'
       build_KDE:
-        description: 'KDE桌面选择(conc-精简 min-最小构造 mobile-移动版 none-不用KDE)'
+        description: 'Desktop selection (conc=compact min=minimal mobile=Plasma Mobile none=CLI niri-noctalia=Wayland WM+shell)'
         required: true
         type: choice
         default: 'min'
@@ -33,6 +33,7 @@ on:
           - 'min'
           - 'mobile'
           - 'none'
+          - 'niri-noctalia'
       build_KDE_plus:
         description: 'KDE 桌面开机自启动 (需要 KDE 桌面选择为 conc、min 或 mobile)'
         required: true
@@ -156,23 +157,43 @@ jobs:
               WAYLAND_PACKAGE_TARGET="all"
               ;;
             Debian-13-KDE)
-              TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
+              if [ "$BUILD_KDE" = "niri-noctalia" ]; then
+                TEMPLATES=$(jq -n -c '["Debian-13-NiriNoctalia"]')
+              else
+                TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
+              fi
               WAYLAND_PACKAGE_TARGET="Debian13"
               ;;
             Ubuntu-26-KDE)
-              TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
+              if [ "$BUILD_KDE" = "niri-noctalia" ]; then
+                TEMPLATES=$(jq -n -c '["Ubuntu-26-NiriNoctalia"]')
+              else
+                TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
+              fi
               WAYLAND_PACKAGE_TARGET="ubuntu2604"
               ;;
             Fedora-43-KDE)
-              TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
+              if [ "$BUILD_KDE" = "niri-noctalia" ]; then
+                TEMPLATES=$(jq -n -c '["Fedora-43-NiriNoctalia"]')
+              else
+                TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
+              fi
               WAYLAND_PACKAGE_TARGET="Fedora43"
               ;;
             Fedora-44-KDE)
-              TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
+              if [ "$BUILD_KDE" = "niri-noctalia" ]; then
+                TEMPLATES=$(jq -n -c '["Fedora-44-NiriNoctalia"]')
+              else
+                TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
+              fi
               WAYLAND_PACKAGE_TARGET="Fedora44"
               ;;
             Arch-KDE)
-              TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
+              if [ "$BUILD_KDE" = "niri-noctalia" ]; then
+                TEMPLATES=$(jq -n -c '["Arch-NiriNoctalia"]')
+              else
+                TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
+              fi
               WAYLAND_PACKAGE_TARGET="Arch"
               ;;
             *)
@@ -185,13 +206,18 @@ jobs:
             exit 1
           fi
 
+          if [ "$BUILD_KDE" = "niri-noctalia" ] && [ "$TARGET" != "Ubuntu-26-KDE" ] && [ "$TARGET" != "Debian-13-KDE" ] && [ "$TARGET" != "Fedora-43-KDE" ] && [ "$TARGET" != "Fedora-44-KDE" ] && [ "$TARGET" != "Arch-KDE" ] && [ "$TARGET" != "all-wayland" ]; then
+            echo "错误: niri-noctalia 目前支持 Ubuntu-26-KDE、Debian-13-KDE、Fedora-43-KDE、Fedora-44-KDE、Arch-KDE、all-wayland" >&2
+            exit 1
+          fi
+
           if [ "$ENABLE_ANLAND_KDE" = "true" ] && [ "$BUILD_KDE" = "none" ]; then
             echo "错误: 启用 Wayland 支持时，KDE 桌面选择不能为 'none'" >&2
             exit 1
           fi
 
-          if [ "$BUILD_KDE" = "mobile" ]; then
-            echo "提示: 选择了移动版 KDE，Wayland 支持已强制启用"
+          if [ "$BUILD_KDE" = "mobile" ] || [ "$BUILD_KDE" = "niri-noctalia" ]; then
+            echo "提示: 选择了 $BUILD_KDE，Wayland 支持已强制启用"
             ENABLE_ANLAND_KDE="true"
           fi
 
@@ -321,6 +347,11 @@ jobs:
           if [ "${{ inputs.build_KDE }}" = "none" ] && [ "${{ inputs.build_KDE_plus }}" = "true" ]; then
             echo "❌ 错误: 当 KDE 桌面选择为 'none' 时，无法启用 KDE 开机自启动"
             echo "请重新运行工作流，取消勾选 'KDE 桌面开机自启动' 或选择 KDE 桌面"
+            exit 1
+          fi
+          if [ "${{ inputs.build_KDE }}" = "niri-noctalia" ] && [ "${{ inputs.build_KDE_plus }}" = "false" ]; then
+            echo "❌ 错误: niri-noctalia 模式需要启用开机自启动"
+            echo "请重新运行工作流，勾选 'KDE 桌面开机自启动'"
             exit 1
           fi
 

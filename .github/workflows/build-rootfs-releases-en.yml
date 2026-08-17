@@ -24,7 +24,7 @@ on:
         type: string
         default: 'Gold'
       build_KDE:
-        description: 'KDE desktop choice (conc-compact, min-minimal, mobile-mobile edition, none-no KDE)'
+        description: 'Desktop choice (conc=compact min=minimal mobile=Plasma Mobile none=CLI niri-noctalia=Wayland WM+shell)'
         required: true
         type: choice
         default: 'min'
@@ -33,6 +33,7 @@ on:
           - 'min'
           - 'mobile'
           - 'none'
+          - 'niri-noctalia'
       build_KDE_plus:
         description: 'KDE desktop auto-start on boot (Requires KDE desktop choice to be conc, min, or mobile)'
         required: true
@@ -156,23 +157,43 @@ jobs:
               WAYLAND_PACKAGE_TARGET="all"
               ;;
             Debian-13-KDE)
-              TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
+              if [ "$BUILD_KDE" = "niri-noctalia" ]; then
+                TEMPLATES=$(jq -n -c '["Debian-13-NiriNoctalia"]')
+              else
+                TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
+              fi
               WAYLAND_PACKAGE_TARGET="Debian13"
               ;;
             Ubuntu-26-KDE)
-              TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
+              if [ "$BUILD_KDE" = "niri-noctalia" ]; then
+                TEMPLATES=$(jq -n -c '["Ubuntu-26-NiriNoctalia"]')
+              else
+                TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
+              fi
               WAYLAND_PACKAGE_TARGET="ubuntu2604"
               ;;
             Fedora-43-KDE)
-              TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
+              if [ "$BUILD_KDE" = "niri-noctalia" ]; then
+                TEMPLATES=$(jq -n -c '["Fedora-43-NiriNoctalia"]')
+              else
+                TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
+              fi
               WAYLAND_PACKAGE_TARGET="Fedora43"
               ;;
             Fedora-44-KDE)
-              TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
+              if [ "$BUILD_KDE" = "niri-noctalia" ]; then
+                TEMPLATES=$(jq -n -c '["Fedora-44-NiriNoctalia"]')
+              else
+                TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
+              fi
               WAYLAND_PACKAGE_TARGET="Fedora44"
               ;;
             Arch-KDE)
-              TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
+              if [ "$BUILD_KDE" = "niri-noctalia" ]; then
+                TEMPLATES=$(jq -n -c '["Arch-NiriNoctalia"]')
+              else
+                TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
+              fi
               WAYLAND_PACKAGE_TARGET="Arch"
               ;;
             *)
@@ -185,13 +206,18 @@ jobs:
             exit 1
           fi
 
+          if [ "$BUILD_KDE" = "niri-noctalia" ] && [ "$TARGET" != "Ubuntu-26-KDE" ] && [ "$TARGET" != "Debian-13-KDE" ] && [ "$TARGET" != "Fedora-43-KDE" ] && [ "$TARGET" != "Fedora-44-KDE" ] && [ "$TARGET" != "Arch-KDE" ] && [ "$TARGET" != "all-wayland" ]; then
+            echo "Error: niri-noctalia is currently supported on Ubuntu-26-KDE, Debian-13-KDE, Fedora-43-KDE, Fedora-44-KDE, Arch-KDE, all-wayland" >&2
+            exit 1
+          fi
+
           if [ "$ENABLE_ANLAND_KDE" = "true" ] && [ "$BUILD_KDE" = "none" ]; then
             echo "Error: KDE desktop choice cannot be 'none' when Wayland support is enabled" >&2
             exit 1
           fi
 
-          if [ "$BUILD_KDE" = "mobile" ]; then
-            echo "Notice: KDE mobile edition selected, Wayland support has been forced on"
+          if [ "$BUILD_KDE" = "mobile" ] || [ "$BUILD_KDE" = "niri-noctalia" ]; then
+            echo "Notice: $BUILD_KDE selected, Wayland support has been forced on"
             ENABLE_ANLAND_KDE="true"
           fi
 
@@ -321,6 +347,11 @@ jobs:
           if [ "${{ inputs.build_KDE }}" = "none" ] && [ "${{ inputs.build_KDE_plus }}" = "true" ]; then
             echo "❌ Error: Cannot enable KDE auto-start when KDE desktop choice is 'none'"
             echo "Please re-run the workflow, uncheck 'KDE desktop auto-start on boot' or select a KDE desktop"
+            exit 1
+          fi
+          if [ "${{ inputs.build_KDE }}" = "niri-noctalia" ] && [ "${{ inputs.build_KDE_plus }}" = "false" ]; then
+            echo "❌ Error: niri-noctalia mode requires auto-start enabled"
+            echo "Please re-run the workflow, check 'KDE desktop auto-start on boot'"
             exit 1
           fi
 

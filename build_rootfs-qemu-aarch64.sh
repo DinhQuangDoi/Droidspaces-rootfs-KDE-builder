@@ -41,7 +41,7 @@ done
 : "${ANLAND_KDE_PACKAGE_REVISION:=}"
 ANLAND_KDE_ROLLING_RELEASE_TAG="anland-kde-packages"
 
-if [ "${BUILD_KDE:-}" = "mobile" ]; then
+if [ "${BUILD_KDE:-}" = "mobile" ] || [ "${BUILD_KDE:-}" = "niri-noctalia" ]; then
   ENABLE_anland_kde="true"
   PulseAudio="none"
 fi
@@ -144,6 +144,8 @@ set -e
 TEMP_TAR="custom-${PREFIX}-rootfs.tar"
 if [ "$BUILD_KDE" = "mobile" ]; then
   DISPLAY_BACKEND="Mobile"
+elif [ "$BUILD_KDE" = "niri-noctalia" ]; then
+  DISPLAY_BACKEND="Niri-Noctalia"
 elif [ "$ENABLE_anland_kde" = "true" ]; then
   DISPLAY_BACKEND="Wayland"
 else

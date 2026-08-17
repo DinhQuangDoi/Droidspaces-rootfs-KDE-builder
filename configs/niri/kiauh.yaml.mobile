@@ -1,0 +1,125 @@
+# Niri configuration for Anland backend on Droidspaces
+# Optimized for mobile/touch with anland Wayland backend
+
+# Keyboard layout
+keyboard:
+  layout: "us"
+  options: "caps:escape"
+  repeat_rate: 25
+  repeat_delay: 600
+
+# Output configuration (anland provides single output)
+outputs:
+  - name: "anland-0"
+    scale: 1.5
+    transform: "normal"
+    # Resolution will be auto-detected from anland
+
+# Input configuration
+input:
+  touchpad:
+    natural_scroll: true
+    tap_to_click: true
+    tap_and_drag: true
+    accel_profile: "adaptive"
+  touchscreen:
+    enabled: true
+    transform: "normal"
+  mouse:
+    accel_profile: "adaptive"
+    natural_scroll: false
+
+# Window rules
+window_rules:
+  - match:
+      app_id: "noctalia"
+    float: true
+    focus: true
+
+# Startup programs
+# Note: noctalia is started via systemd service
+startup: []
+
+# Key bindings (Super = Mod4)
+bindings:
+  # Terminal
+  - { key: "Return", mods: ["Super"], action: "spawn", command: "alacritty" }
+  # Launcher (rofi via noctalia)
+  - { key: "Space", mods: ["Super"], action: "spawn", command: "noctalia-launcher" }
+  # File manager
+  - { key: "E", mods: ["Super"], action: "spawn", command: "pcmanfm" }
+  # Close window
+  - { key: "W", mods: ["Super"], action: "close_window" }
+  # Fullscreen
+  - { key: "F", mods: ["Super"], action: "toggle_fullscreen" }
+  # Floating toggle
+  - { key: "Shift", mods: ["Super"], key2: "Space", action: "toggle_floating" }
+  # Workspace navigation
+  - { key: "Left", mods: ["Super"], action: "focus_workspace_left" }
+  - { key: "Right", mods: ["Super"], action: "focus_workspace_right" }
+  - { key: "1", mods: ["Super"], action: "focus_workspace", workspace: 1 }
+  - { key: "2", mods: ["Super"], action: "focus_workspace", workspace: 2 }
+  - { key: "3", mods: ["Super"], action: "focus_workspace", workspace: 3 }
+  - { key: "4", mods: ["Super"], action: "focus_workspace", workspace: 4 }
+  - { key: "5", mods: ["Super"], action: "focus_workspace", workspace: 5 }
+  - { key: "6", mods: ["Super"], action: "focus_workspace", workspace: 6 }
+  - { key: "7", mods: ["Super"], action: "focus_workspace", workspace: 7 }
+  - { key: "8", mods: ["Super"], action: "focus_workspace", workspace: 8 }
+  - { key: "9", mods: ["Super"], action: "focus_workspace", workspace: 9 }
+  # Move window to workspace
+  - { key: "1", mods: ["Super", "Shift"], action: "move_window_to_workspace", workspace: 1 }
+  - { key: "2", mods: ["Super", "Shift"], action: "move_window_to_workspace", workspace: 2 }
+  - { key: "3", mods: ["Super", "Shift"], action: "move_window_to_workspace", workspace: 3 }
+  - { key: "4", mods: ["Super", "Shift"], action: "move_window_to_workspace", workspace: 4 }
+  - { key: "5", mods: ["Super", "Shift"], action: "move_window_to_workspace", workspace: 5 }
+  # Layout control (scrollable tiling)
+  - { key: "Up", mods: ["Super"], action: "move_focus_up" }
+  - { key: "Down", mods: ["Super"], action: "move_focus_down" }
+  - { key: "Left", mods: ["Super", "Shift"], action: "move_window_left" }
+  - { key: "Right", mods: ["Super", "Shift"], action: "move_window_right" }
+  - { key: "Up", mods: ["Super", "Shift"], action: "move_window_up" }
+  - { key: "Down", mods: ["Super", "Shift"], action: "move_window_down" }
+  # Resize
+  - { key: "H", mods: ["Super", "Control"], action: "resize_left" }
+  - { key: "L", mods: ["Super", "Control"], action: "resize_right" }
+  - { key: "K", mods: ["Super", "Control"], action: "resize_up" }
+  - { key: "J", mods: ["Super", "Control"], action: "resize_down" }
+  # Lock screen
+  - { key: "L", mods: ["Super", "Shift"], action: "spawn", command: "noctalia-lock" }
+  # Screenshot
+  - { key: "Print", mods: [], action: "spawn", command: "grim - | wl-copy" }
+  - { key: "Print", mods: ["Shift"], action: "spawn", command: "grim -g \"$(slurp)\" - | wl-copy" }
+  # Reload config
+  - { key: "R", mods: ["Super", "Shift"], action: "reload_config" }
+  # Quit niri (restart compositor)
+  - { key: "Q", mods: ["Super", "Shift", "Control"], action: "quit" }
+
+# Gestures (touchscreen)
+gestures:
+  swipe:
+    # 3-finger swipe left/right: workspace switch
+    - { fingers: 3, direction: "left", action: "focus_workspace_right" }
+    - { fingers: 3, direction: "right", action: "focus_workspace_left" }
+    # 3-finger swipe up: overview (launcher)
+    - { fingers: 3, direction: "up", action: "spawn", command: "noctalia-launcher" }
+    # 3-finger swipe down: close window
+    - { fingers: 3, direction: "down", action: "close_window" }
+  pinch:
+    # Pinch to zoom (handled by apps)
+
+# Scrollable tiling behavior
+scrollable_tiling:
+  enabled: true
+  # Column width ratio
+  column_width: 0.6
+  # Gap between windows
+  gap: 4
+  # Border width
+  border_width: 2
+  # Focus border color
+  focus_border: "#ff6b6b"
+  # Unfocused border color
+  unfocused_border: "#333333"
+
+# IPC socket (for noctalia integration)
+ipc: true

@@ -1,0 +1,31 @@
+[Unit]
+Description=Niri Compositor (Anland Backend)
+Documentation=https://github.com/niri-wm/niri
+After=anland-daemon.service
+Wants=anland-daemon.service
+
+[Service]
+Type=simple
+User=1000
+PAMName=login
+Environment=ANLAND_SOCKET=/run/display.sock
+Environment=ANLAND_DRM_DEVICE=/dev/dri/renderD128
+Environment=MESA_LOADER_DRIVER_OVERRIDE=kgsl
+Environment=GALLIUM_DRIVER=kgsl
+Environment=FD_FORCE_KGSL=1
+Environment=FD_DEV_FEATURES=enable_tp_ubwc_flag_hint=1
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+Environment=WAYLAND_DISPLAY=wayland-0
+Environment=QT_QPA_PLATFORM=wayland
+Environment=GTK_THEME=Adwaita:dark
+ExecStartPre=/bin/bash -lc 'mkdir -p /run/user/1000 && chown 1000:1000 /run/user/1000'
+ExecStart=/usr/local/bin/niri --anland
+Restart=on-failure
+RestartSec=2
+StartLimitIntervalSec=60
+StartLimitBurst=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

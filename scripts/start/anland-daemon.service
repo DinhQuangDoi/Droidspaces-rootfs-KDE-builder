@@ -1,0 +1,24 @@
+[Unit]
+Description=Anland Display Daemon
+Documentation=https://github.com/superturtlee/anland
+Before=niri.service
+Wants=dev-dri-renderD128.device
+After=dev-dri-renderD128.device systemd-udev-settle.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/anland-daemon --socket /run/display.sock --drm-device /dev/dri/renderD128
+Restart=on-failure
+RestartSec=2
+StandardOutput=journal
+StandardError=journal
+
+# Security hardening
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/run/display.sock /dev/dri
+
+[Install]
+WantedBy=multi-user.target
