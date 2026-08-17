@@ -140,6 +140,9 @@ RUN pacman -S --noconfirm --needed \
     # Wayland/图形栈
     wayland libxkbcommon mesa libinput libseat pipewire wireplumber \
     libdisplay-info \
+    libsdbus-c++ libsodium libsecret polkit wireplumber \
+    libqalculate md4c tomlplusplus libical \
+    libwebp libjxl librsvg jemalloc \
     noto-fonts-cjk noto-fonts-emoji \
     alacritty rofi pcmanfm \
     lxappearance qt6ct && \

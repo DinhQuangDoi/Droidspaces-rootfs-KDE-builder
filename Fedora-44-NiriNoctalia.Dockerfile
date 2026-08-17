@@ -147,6 +147,11 @@ RUN dnf install -y --setopt=install_weak_deps=False \
     dnf install -y --setopt=install_weak_deps=False \
     libwayland-client wayland libxkbcommon libdrm libinput libseat pipewire pipewire-pulse wireplumber \
     libdisplay-info \
+    # Noctalia runtime libs
+    sdbus-cpp-devel libsodium-devel libsecret-devel \
+    polkit-devel wireplumber-devel \
+    libqalculate-devel md4c-devel tomlplusplus-devel libical-devel \
+    libwebp-devel libjxl-devel librsvg2-devel jemalloc-devel \
     google-noto-cjk-fonts google-noto-emoji-color-fonts \
     alacritty rofi pcmanfm \
     lxappearance qt6ct && \

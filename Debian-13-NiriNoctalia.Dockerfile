@@ -158,6 +158,11 @@ RUN apt-get update && \
     libwayland-client0 libwayland-server0 libwayland-egl1 libegl1 libgles2 \
     libxkbcommon0 libdrm2 libinput10 libudev1 libseat1 \
     libdisplay-info3 \
+    # Noctalia runtime libs
+    libsdbus-c++-dev libsodium-dev libsecret-1-dev \
+    libpolkit-agent-1-dev libpolkit-gobject-1-dev libwireplumber-0.5-dev \
+    libqalculate-dev libmd4c-dev libtomlplusplus-dev libical-dev \
+    libwebp-dev libjxl-dev librsvg2-dev libjemalloc-dev \
     pipewire pipewire-pulse wireplumber \
     # 字体
     fonts-noto-cjk fonts-noto-color-emoji \
