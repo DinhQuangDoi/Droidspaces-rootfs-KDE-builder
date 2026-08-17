@@ -174,12 +174,10 @@ RUN apt-get update && \
     pipewire pipewire-pulse wireplumber \
     # 字体
     fonts-noto-cjk fonts-noto-color-emoji \
-    # Polkit agent
-    polkit-gnome \
     # 实用工具
     alacritty rofi pcmanfm \
     # 主题工具
-    lxappearance qt6ct kvantum \
+    lxappearance qt6ct \
     && apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*

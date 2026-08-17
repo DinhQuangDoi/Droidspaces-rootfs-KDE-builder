@@ -146,9 +146,8 @@ RUN dnf install -y --setopt=install_weak_deps=False \
     dnf install -y --setopt=install_weak_deps=False \
     libwayland-client wayland libxkbcommon libdrm libinput libseat pipewire pipewire-pulse wireplumber \
     google-noto-cjk-fonts google-noto-emoji-color-fonts \
-    polkit-gnome \
     alacritty rofi pcmanfm \
-    lxappearance qt6ct kvantum && \
+    lxappearance qt6ct && \
     echo "%_install_langs all" > /etc/rpm/macros.image-language-conf && \
     dnf upgrade -y && \
     dnf clean all && \

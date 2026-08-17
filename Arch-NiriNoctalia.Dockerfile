@@ -140,9 +140,8 @@ RUN pacman -S --noconfirm --needed \
     # Wayland/图形栈
     wayland libxkbcommon mesa libinput libseat pipewire wireplumber \
     noto-fonts-cjk noto-fonts-emoji \
-    polkit-gnome \
     alacritty rofi pcmanfm \
-    lxappearance qt6ct kvantum && \
+    lxappearance qt6ct && \
     pacman -Sc --noconfirm
 
 # 复制构建产物
