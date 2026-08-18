@@ -156,6 +156,13 @@ RUN sed -i 's/Components: main/Components: main restricted universe multiverse/g
     apt-get update && \
     apt-get upgrade -y
 
+# Brave Browser repository
+RUN curl -fsSL https://brave-browser-apt-release.s3.brave.com/brave-browser-archive.key | \
+    gpg --dearmor -o /usr/share/keyrings/brave-browser-archive.keyring && \
+    echo "deb [signed-by=/usr/share/keyrings/brave-browser-archive.keyring] \
+    https://brave-browser-apt-release.s3.brave.com/ stable main" | \
+    tee /etc/apt/sources.list.d/brave-browser-release.list
+
 # 安装运行时依赖
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -182,7 +189,7 @@ RUN apt-get update && \
     # 字体
     fonts-noto-cjk fonts-noto-color-emoji \
     # 实用工具
-    alacritty rofi pcmanfm \
+    alacritty kitty gnome-terminal rofi pcmanfm nautilus btop htop vim glmark2 mesa-utils vulkan-tools brave-browser \
     # 主题工具
     lxappearance qt6ct \
     && apt-get autoremove -y && \
