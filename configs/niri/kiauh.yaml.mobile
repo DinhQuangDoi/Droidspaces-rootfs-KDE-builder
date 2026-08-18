@@ -10,10 +10,10 @@ keyboard:
 
 # Output configuration (anland provides single output)
 outputs:
-  - name: "anland-0"
+  - name: "anland"
     scale: 1.5
-    transform: "normal"
     # Resolution will be auto-detected from anland
+    # Transform is auto-detected from device orientation
 
 # Input configuration
 input:

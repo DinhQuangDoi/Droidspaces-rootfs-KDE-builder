@@ -182,20 +182,10 @@ RUN apt-get update && \
     # 字体
     fonts-noto-cjk fonts-noto-color-emoji \
     # 实用工具
-    alacritty kitty gnome-terminal rofi pcmanfm nautilus btop htop vim glmark2 mesa-utils vulkan-tools \
+    alacritty kitty gnome-terminal rofi pcmanfm nautilus btop vim glmark2 mesa-utils vulkan-tools \
     # 主题工具
     lxappearance qt6ct \
     && apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Brave Browser repository (after curl/gnupg installed)
-RUN curl -fsSL https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg | \
-    gpg --dearmor -o /usr/share/keyrings/brave-browser-archive-keyring.gpg && \
-    curl -fsSL https://brave-browser-apt-release.s3.brave.com/brave-browser.sources | \
-    tee /etc/apt/sources.list.d/brave-browser-release.sources > /dev/null && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends brave-browser && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
