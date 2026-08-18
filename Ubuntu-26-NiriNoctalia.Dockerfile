@@ -156,13 +156,6 @@ RUN sed -i 's/Components: main/Components: main restricted universe multiverse/g
     apt-get update && \
     apt-get upgrade -y
 
-# Brave Browser repository
-RUN curl -fsSL https://brave-browser-apt-release.s3.brave.com/brave-browser-archive.key | \
-    gpg --dearmor -o /usr/share/keyrings/brave-browser-archive.keyring && \
-    echo "deb [signed-by=/usr/share/keyrings/brave-browser-archive.keyring] \
-    https://brave-browser-apt-release.s3.brave.com/ stable main" | \
-    tee /etc/apt/sources.list.d/brave-browser-release.list
-
 # 安装运行时依赖
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -193,6 +186,17 @@ RUN apt-get update && \
     # 主题工具
     lxappearance qt6ct \
     && apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Brave Browser repository (after curl/gnupg installed)
+RUN curl -fsSL https://brave-browser-apt-release.s3.brave.com/brave-browser-archive.key | \
+    gpg --dearmor -o /usr/share/keyrings/brave-browser-archive.keyring && \
+    echo "deb [signed-by=/usr/share/keyrings/brave-browser-archive.keyring] \
+    https://brave-browser-apt-release.s3.brave.com/ stable main" | \
+    tee /etc/apt/sources.list.d/brave-browser-release.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends brave-browser && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
