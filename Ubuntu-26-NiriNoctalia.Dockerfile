@@ -190,11 +190,10 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Brave Browser repository (after curl/gnupg installed)
-RUN curl -fsSL https://brave-browser-apt-release.s3.brave.com/brave-browser-archive.key | \
-    gpg --dearmor -o /usr/share/keyrings/brave-browser-archive.keyring && \
-    echo "deb [signed-by=/usr/share/keyrings/brave-browser-archive.keyring] \
-    https://brave-browser-apt-release.s3.brave.com/ stable main" | \
-    tee /etc/apt/sources.list.d/brave-browser-release.list && \
+RUN curl -fsSL https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg | \
+    gpg --dearmor -o /usr/share/keyrings/brave-browser-archive-keyring.gpg && \
+    curl -fsSL https://brave-browser-apt-release.s3.brave.com/brave-browser.sources | \
+    tee /etc/apt/sources.list.d/brave-browser-release.sources > /dev/null && \
     apt-get update && \
     apt-get install -y --no-install-recommends brave-browser && \
     apt-get clean && \
