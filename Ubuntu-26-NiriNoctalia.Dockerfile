@@ -182,7 +182,7 @@ RUN apt-get update && \
     # 字体
     fonts-noto-cjk fonts-noto-color-emoji \
     # 实用工具
-    alacritty kitty gnome-terminal rofi pcmanfm nautilus btop htop vim glmark2 mesa-utils vulkan-tools brave-browser \
+    alacritty kitty gnome-terminal rofi pcmanfm nautilus btop htop vim glmark2 mesa-utils vulkan-tools \
     # 主题工具
     lxappearance qt6ct \
     && apt-get autoremove -y && \
