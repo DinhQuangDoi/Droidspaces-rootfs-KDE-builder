@@ -10,10 +10,10 @@ keyboard:
 
 # Output configuration (anland provides single output)
 outputs:
-  - name: "anland"
+  - name: "anland-0"
     scale: 1.5
+    transform: "normal"
     # Resolution will be auto-detected from anland
-    # Transform is auto-detected from device orientation
 
 # Input configuration
 input:
@@ -42,8 +42,10 @@ startup: []
 
 # Key bindings (Super = Mod4)
 bindings:
-  # Terminal
+  # Terminal (alacritty)
   - { key: "Return", mods: ["Super"], action: "spawn", command: "alacritty" }
+  # GNOME Terminal (for vim/btop with dedicated icon)
+  - { key: "Return", mods: ["Super", "Shift"], action: "spawn", command: "gnome-terminal" }
   # Launcher (rofi via noctalia)
   - { key: "Space", mods: ["Super"], action: "spawn", command: "noctalia-launcher" }
   # File manager
@@ -64,7 +66,7 @@ bindings:
   - { key: "5", mods: ["Super"], action: "focus_workspace", workspace: 5 }
   - { key: "6", mods: ["Super"], action: "focus_workspace", workspace: 6 }
   - { key: "7", mods: ["Super"], action: "focus_workspace", workspace: 7 }
-  - { key: "8", mods: ["Super"], action: "focus_workspace", workspace: 8 }
+  - { key: "8", mods: ["Super"], action: "focus_workspace", workspace: 7 }
   - { key: "9", mods: ["Super"], action: "focus_workspace", workspace: 9 }
   # Move window to workspace
   - { key: "1", mods: ["Super", "Shift"], action: "move_window_to_workspace", workspace: 1 }

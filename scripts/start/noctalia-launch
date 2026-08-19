@@ -1,0 +1,14 @@
+#!/bin/bash
+# Launch Noctalia using whichever Wayland socket niri actually created.
+# niri (smithay bind_auto "wayland" 1..33) never uses wayland-0 and picks the
+# first free socket from wayland-1 upward, so we must not hardcode it here.
+export XDG_RUNTIME_DIR=/run/user/1000
+for i in $(seq 1 120); do
+    sock=$(ls /run/user/1000/wayland-* 2>/dev/null | head -n1)
+    if [ -n "$sock" ]; then
+        export WAYLAND_DISPLAY=$(basename "$sock")
+        exec /usr/local/bin/noctalia
+    fi
+    sleep 1
+done
+exit 1

@@ -72,7 +72,8 @@ pinned = [
   "org.gnome.Terminal",
   "org.gnome.Nautilus",
   "firefox",
-  "code.desktop"
+  "code.desktop",
+  "org.gnome.Terminal.desktop"
 ]
 
 # Lock screen
