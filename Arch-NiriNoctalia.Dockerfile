@@ -1,28 +1,13 @@
 # Multi-stage build for Niri + Noctalia + Anland on Arch Linux ARM
-# Stage 1: Clone anland source (provides the niri backend patch)
+# Stage 1: Build niri (with anland backend) directly from the niri-anland fork.
+# niri-anland is a proper fork of niri-wm/niri; the anland branch carries the
+# backend + anland-sys + color/cursor/blink fixes. No overlay/patch dance.
 ARG TARGETPLATFORM
-FROM ogarcia/archlinux AS anland-source
-
-ENV DEBIAN_FRONTEND=noninteractive
-ARG ANLAND_REPO=https://github.com/DinhQuangDoi/anland.git
-ARG ANLAND_BRANCH=main
-
-RUN pacman -Sy --noconfirm --needed \
-    git ca-certificates \
-    && rm -rf /var/cache/pacman/pkg/*
-
-WORKDIR /anland
-RUN git clone --depth=1 --branch ${ANLAND_BRANCH} ${ANLAND_REPO} . && \
-    mkdir -p /out/patch && \
-    cp -r producers/niri/overlay/niri /out/patch/niri && \
-    cp -r producers/niri/anland-sys /out/patch/anland-sys
-
-# Stage 2: Build niri with anland backend
 FROM ogarcia/archlinux AS niri-builder
 
 ENV DEBIAN_FRONTEND=noninteractive
-ARG NIRI_REPO=https://github.com/niri-wm/niri.git
-ARG NIRI_TAG=v26.04
+ARG NIRI_ANLAND_REPO=https://github.com/DinhQuangDoi/niri-anland.git
+ARG NIRI_ANLAND_REF=26.4.0-anland.3
 
 RUN pacman -Sy --noconfirm --needed \
     git curl base-devel pkgconf openssl \
@@ -31,24 +16,16 @@ RUN pacman -Sy --noconfirm --needed \
     libseat pipewire libdrm libgbm pango libdisplay-info clang \
     && rm -rf /var/cache/pacman/pkg/*
 
-# Install Rust (stable 1.87, matches anland fork CI)
+# Install Rust (stable 1.87, matches niri-anland fork CI)
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.87
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 WORKDIR /build
-RUN git clone --depth=1 --branch ${NIRI_TAG} ${NIRI_REPO} niri
-COPY --from=anland-source /out/patch /anland-patch
+# Clone the niri-anland fork at the pinned release tag (self-contained: backend +
+# anland-sys are already in the tree, so there is nothing to patch).
+RUN git clone --depth=1 --branch ${NIRI_ANLAND_REF} ${NIRI_ANLAND_REPO} niri
 
 WORKDIR /build/niri
-RUN cp -r /anland-patch/niri/src/backend/anland.rs src/backend/ && \
-    cp -r /anland-patch/niri/src/backend/anland_input.rs src/backend/ && \
-    cp -r /anland-patch/niri/src/backend/mod.rs src/backend/ && \
-    cp -r /anland-patch/niri/src/cli.rs src/ && \
-    cp -r /anland-patch/niri/src/main.rs src/ && \
-    cp -r /anland-patch/niri/src/niri.rs src/ && \
-    cp -r /anland-patch/niri/Cargo.toml . && \
-    cp -r /anland-patch/anland-sys .
-
 RUN cargo build --release --bin niri && \
     mkdir -p /out/niri && \
     cp target/release/niri /out/niri/
