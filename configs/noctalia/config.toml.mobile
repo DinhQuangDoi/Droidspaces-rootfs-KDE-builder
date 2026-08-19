@@ -1,150 +1,128 @@
 # Noctalia configuration for Droidspaces mobile/container
-# Based on example.toml from noctalia repo, optimized for mobile/touch
+# Matches noctalia v5.0.0 schema (see example.toml in the noctalia repo).
 
-[core]
-# Enable hot reload of config
-hot_reload = true
-# Log level: trace, debug, info, warn, error
-log_level = "info"
+[accessibility]
+ui_scale = 1.0
 
-# Compositor detection - niri with anland backend
-[compositor]
-# Force niri backend
-preferred = "niri"
+[shell]
+font_family = "sans-serif"
+clipboard_enabled = true
+telemetry_enabled = false
+niri_overview_type_to_launch_enabled = false
 
-# Bar configuration - optimized for mobile screens
-[bar]
+# ── Wallpaper ─────────────────────────────────────────────────────────────────
+
+[wallpaper]
 enabled = true
-position = "top"
-height = 48
-margin = 0
-border_radius = 0
+fill_mode = "stretch"            # center | crop | fit | stretch | repeat | span
+fill_color = "on_surface"
+transition_duration = 1500
+edge_smoothness = 0.3
+transition_on_startup = false
+directory = "~/Pictures/Wallpapers"
 
-[bar.widgets.left]
-# Workspace indicator
-workspace = {}
-# Window title
-window_title = { max_length = 50 }
+# ── Theme ─────────────────────────────────────────────────────────────────────
 
-[bar.widgets.center]
-# Clock
-clock = { format = "%H:%M", tooltip_format = "%A, %d %B %Y" }
+[theme]
+mode = "dark"                    # dark | light | auto
+source = "builtin"               # builtin | wallpaper | community
+builtin = "Noctalia"
+pure_black_dark = false
 
-[bar.widgets.right]
-# System tray
-systray = { icon_size = 24 }
-# Battery
-battery = { show_percentage = true, low_threshold = 20 }
-# Network
-network = {}
-# Audio
-audio = { mixer = "pipewire" }
-# Brightness
-brightness = {}
+# ── Notifications ─────────────────────────────────────────────────────────────
 
-# Launcher configuration
-[launcher]
-enabled = true
-# Key binding to open (handled by niri config)
-# Terminal to use for CLI apps
-terminal = "alacritty"
-# Icon theme
-icon_theme = "Adwaita"
-
-# Notification configuration
 [notification]
-enabled = true
-position = "top-right"
-max_visible = 5
-default_timeout = 5000
-# Notification history
-history = { enabled = true, max_count = 100 }
+enable_daemon = true
+show_app_name = true
+show_actions = true
+layer = "top"                    # top | overlay
+scale = 1.0
+background_opacity = 0.97
+offset_x = 8
+offset_y = 8
 
-# Dock configuration
+# ── OSD ───────────────────────────────────────────────────────────────────────
+
+[osd]
+position = "top_center"
+position_vertical = "top_center"
+orientation = "horizontal"
+scale = 1.0
+background_opacity = 0.97
+offset_x = 8
+offset_y = 8
+
+[osd.kinds]
+volume = true
+volume_output = true
+volume_input = true
+brightness = true
+wifi = true
+bluetooth = true
+power_profile = true
+caffeine = true
+nightlight = true
+dnd = true
+lock_keys = true
+keyboard_layout = true
+privacy = true
+
+# ── Lock Screen ───────────────────────────────────────────────────────────────
+
+[lockscreen]
+enabled = true
+blurred_desktop = false
+blur_intensity = 0.5
+tint_intensity = 0.3
+
+# ── Bar (top) ─────────────────────────────────────────────────────────────────
+
+[bar.main]
+position = "top"
+thickness = 48
+background_opacity = 1.0
+radius = 0
+margin_ends = 0
+margin_edge = 0
+padding = 14
+widget_spacing = 6
+scale = 1.0
+shadow = false
+auto_hide = false
+reserve_space = true
+capsule = false
+
+start  = ["launcher", "workspaces"]
+center = ["clock"]
+end    = ["media", "tray", "notifications", "clipboard", "network", "bluetooth", "volume", "brightness", "battery", "control-center", "session"]
+
+# ── Dock (bottom) ─────────────────────────────────────────────────────────────
+
 [dock]
 enabled = true
 position = "bottom"
 icon_size = 48
-padding = 8
+main_axis_padding = 16
+cross_axis_padding = 8
+item_spacing = 6
+background_opacity = 0.88
+radius = 16
+margin_ends = 0
+margin_edge = 8
+shadow = false
+show_running = true
 auto_hide = false
-# Pinned apps
-pinned = [
-  "org.gnome.Terminal",
-  "org.gnome.Nautilus",
-  "firefox",
-  "code.desktop",
-  "org.gnome.Terminal.desktop"
-]
-
-# Lock screen
-[lock_screen]
-enabled = true
-# Background
-background = { type = "solid", color = "#1a1a2e" }
-# Clock
-clock = { format = "%H:%M", date_format = "%A, %d %B" }
-# Input method
-input_method = true
-
-# Wallpaper
-[wallpaper]
-enabled = true
-mode = "stretch"
-# Default wallpaper path (will be overridden by user config)
-path = "/usr/share/backgrounds/noctalia/default.jpg"
-
-# OSD (On-Screen Display)
-[osd]
-enabled = true
-position = "center"
-timeout = 2000
-# Volume OSD
-volume = { icon = true, bar = true }
-# Brightness OSD
-brightness = { icon = true, bar = true }
-
-# Clipboard history
-[clipboard]
-enabled = true
-max_history = 50
-# Persist across reboots (requires secret service)
-persist = false
-
-# Desktop widgets
-[widgets]
-enabled = true
-# Example widgets
-# weather = { location = "auto", units = "metric" }
-# calendar = {}
-
-# Session actions
-[session]
-enabled = true
-# Power menu options
-power = { reboot = true, shutdown = true, suspend = true, hibernate = false, logout = true }
-
-# Theming
-[theme]
-# Base theme: "light" or "dark"
-base = "dark"
-# Accent color (hex)
-accent = "#ff6b6b"
-# Font
-font_family = "Noto Sans CJK SC"
-font_size = 12
-# Border radius
-radius = 8
-# Blur background
-blur = { enabled = true, strength = 16 }
-
-# Input method (fcitx5)
-[input_method]
-enabled = true
-# Preedit and status window positioning
-preedit_position = "cursor"
-status_position = "bar"
-
-# Plugins (optional)
-[plugins]
-# Example: extra widgets, launcher providers, etc.
-# enabled = ["my-custom-plugin"]
+reserve_space = true
+layer = "top"                    # top | overlay
+active_scale = 1.0
+inactive_scale = 0.85
+magnification = true
+magnification_scale = 1.45
+active_opacity = 1.0
+inactive_opacity = 0.85
+show_dots = false
+show_instance_count = true
+launcher_position = "none"       # none | start | end
+launcher_icon = "grid-dots"
+active_monitor_only = false
+pinned = ["org.gnome.Terminal", "org.gnome.Nautilus", "firefox", "code.desktop", "org.gnome.Terminal.desktop"]

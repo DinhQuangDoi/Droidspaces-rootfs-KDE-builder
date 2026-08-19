@@ -3,21 +3,20 @@ Description=Noctalia Shell (Wayland)
 Documentation=https://github.com/noctalia-dev/noctalia
 After=niri.service
 Wants=niri.service
+StartLimitIntervalSec=60
+StartLimitBurst=5
 
 [Service]
 Type=simple
 User=1000
 PAMName=login
 Environment=XDG_RUNTIME_DIR=/run/user/1000
-Environment=WAYLAND_DISPLAY=wayland-0
+Environment=WAYLAND_DISPLAY=wayland-1
 Environment=QT_QPA_PLATFORM=wayland
 Environment=GTK_THEME=Adwaita:dark
-ExecStartPre=/bin/bash -lc 'for i in $(seq 1 120); do [ -S /run/user/1000/wayland-0 ] && exit 0; sleep 1; done; exit 1'
-ExecStart=/usr/local/bin/noctalia
+ExecStart=/usr/local/bin/noctalia-launch
 Restart=on-failure
 RestartSec=2
-StartLimitIntervalSec=60
-StartLimitBurst=5
 StandardOutput=journal
 StandardError=journal
 

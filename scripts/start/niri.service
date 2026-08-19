@@ -1,6 +1,8 @@
 [Unit]
 Description=Niri Compositor (Anland Backend)
 Documentation=https://github.com/niri-wm/niri
+StartLimitIntervalSec=60
+StartLimitBurst=5
 
 [Service]
 Type=simple
@@ -13,7 +15,7 @@ Environment=GALLIUM_DRIVER=kgsl
 Environment=FD_FORCE_KGSL=1
 Environment=FD_DEV_FEATURES=enable_tp_ubwc_flag_hint=1
 Environment=XDG_RUNTIME_DIR=/run/user/1000
-Environment=WAYLAND_DISPLAY=wayland-0
+Environment=WAYLAND_DISPLAY=wayland-1
 Environment=QT_QPA_PLATFORM=wayland
 Environment=GTK_THEME=Adwaita:dark
 ExecStartPre=/bin/bash -lc 'mkdir -p /run/user/1000 && chown 1000:1000 /run/user/1000'
@@ -22,8 +24,6 @@ ExecStartPre=/bin/bash -lc 'rm -f /run/user/1000/wayland-* /run/user/1000/niri.*
 ExecStart=/usr/local/bin/niri --anland
 Restart=on-failure
 RestartSec=2
-StartLimitIntervalSec=60
-StartLimitBurst=5
 StandardOutput=journal
 StandardError=journal
 

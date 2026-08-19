@@ -140,6 +140,9 @@ RUN chmod +x /usr/local/bin/download-firmware /usr/local/sbin/nosnap /etc/profil
 # 复制 systemd services
 COPY scripts/start/niri.service /etc/systemd/system/
 COPY scripts/start/noctalia.service /etc/systemd/system/
+COPY scripts/start/noctalia-launch /usr/local/bin/noctalia-launch
+
+RUN chmod +x /usr/local/bin/noctalia-launch
 
 # 安装基础依赖
 RUN sed -i 's/Components: main/Components: main restricted universe multiverse/g' /etc/apt/sources.list.d/ubuntu.sources 2>/dev/null || \
@@ -189,6 +192,16 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Brave Browser repository (after curl/gnupg installed)
+RUN curl -fsSL https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg | \
+    gpg --dearmor -o /usr/share/keyrings/brave-browser-archive-keyring.gpg && \
+    curl -fsSL https://brave-browser-apt-release.s3.brave.com/brave-browser.sources | \
+    tee /etc/apt/sources.list.d/brave-browser-release.sources > /dev/null && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends brave-browser && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # 复制构建产物
 COPY --from=niri-builder /out/niri/niri /usr/local/bin/niri
 COPY --from=noctalia-builder /out/noctalia/usr/bin/noctalia /usr/local/bin/noctalia
@@ -196,12 +209,14 @@ COPY --from=noctalia-builder /out/noctalia/usr/share/noctalia /usr/local/share/n
 
 # 复制配置文件
 COPY configs/noctalia/config.toml.mobile /etc/xdg/noctalia/config.toml
+COPY configs/niri/config.kdl.mobile /etc/xdg/niri/config.kdl
 COPY configs/niri/kiauh.yaml.mobile /etc/xdg/niri/kiauh.yaml
 COPY configs/pcmanfm/default/pcmanfm.conf /etc/xdg/pcmanfm/default/pcmanfm.conf
 
 # 用户配置目录 (will be copied to user home on first login)
 RUN mkdir -p /etc/skel/.config/noctalia /etc/skel/.config/niri /etc/skel/.config/pcmanfm && \
     cp /etc/xdg/noctalia/config.toml /etc/skel/.config/noctalia/config.toml && \
+    cp /etc/xdg/niri/config.kdl /etc/skel/.config/niri/config.kdl && \
     cp /etc/xdg/niri/kiauh.yaml /etc/skel/.config/niri/kiauh.yaml && \
     cp /etc/xdg/pcmanfm/default/pcmanfm.conf /etc/skel/.config/pcmanfm/default.conf
 
@@ -242,10 +257,14 @@ MESA_LOADER_DRIVER_OVERRIDE=kgsl
 GALLIUM_DRIVER=kgsl
 FD_FORCE_KGSL=1
 FD_DEV_FEATURES=enable_tp_ubwc_flag_hint=1
-XDG_RUNTIME_DIR=/run/user/$(id -u)
-WAYLAND_DISPLAY=wayland-0
+XDG_RUNTIME_DIR=/run/user/1000
+XDG_SESSION_TYPE=wayland
+WAYLAND_DISPLAY=wayland-1
 QT_QPA_PLATFORM=wayland
 GTK_THEME=Adwaita:dark
+GTK_A11Y=none
+NO_AT_BRIDGE=1
+TMPDIR=/tmp
 EOF
 
 # Audio (anland handles audio, but keep PulseAudio config for fallback)
@@ -408,6 +427,30 @@ ln -sf /etc/systemd/system/ds-dhcp.service /etc/systemd/system/multi-user.target
 mkdir -p /etc/systemd/system/multi-user.target.wants
 ln -sf /etc/systemd/system/niri.service /etc/systemd/system/multi-user.target.wants/niri.service
 ln -sf /etc/systemd/system/noctalia.service /etc/systemd/system/multi-user.target.wants/noctalia.service
+
+# TMPDIR compatibility: /data/local/tmp is inherited from the Android host
+# environment but does not exist unless android_storage is enabled. Create it so
+# apps (GTK/gdk-pixbuf, Chromium process singleton) can write temp files even
+# when launched from a terminal/root shell carrying TMPDIR=/data/local/tmp.
+mkdir -p /data/local/tmp && chmod 1777 /data/local/tmp
+
+# Disable GVFS volume monitors whose backend daemons (udisks2, goa, gphoto2,
+# mtp, libimobiledevice) are not installed. Otherwise GIO/GTK apps (nautilus,
+# pcmanfm) block for ~25s on dbus activation timeout on every startup.
+cd /usr/share/dbus-1/services/
+for f in org.gtk.vfs.AfcVolumeMonitor.service \
+         org.gtk.vfs.GoaVolumeMonitor.service \
+         org.gtk.vfs.GPhoto2VolumeMonitor.service \
+         org.gtk.vfs.MTPVolumeMonitor.service \
+         org.gtk.vfs.UDisks2VolumeMonitor.service; do
+    [ -f "$f" ] && mv "$f" "$f.disabled"
+done
+
+# Brave/Chromium defaults to the X11 platform and there is no Xwayland in this
+# container, so force the Wayland platform when Brave is present.
+if [ -f /opt/brave.com/brave/brave-browser ]; then
+    sed -i 's|"$HERE/brave" "$@" || true|"$HERE/brave" --ozone-platform=wayland "$@" || true|' /opt/brave.com/brave/brave-browser
+fi
 
 if [ -f /etc/logrotate.conf ]; then
     sed -i 's/^#maxsize.*/maxsize 50M/' /etc/logrotate.conf

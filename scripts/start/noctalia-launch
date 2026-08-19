@@ -4,11 +4,13 @@
 # first free socket from wayland-1 upward, so we must not hardcode it here.
 export XDG_RUNTIME_DIR=/run/user/1000
 for i in $(seq 1 120); do
-    sock=$(ls /run/user/1000/wayland-* 2>/dev/null | head -n1)
-    if [ -n "$sock" ]; then
+    for sock in /run/user/1000/wayland-*; do
+        # Skip the lock file and any non-socket match; only accept a real socket.
+        case "$sock" in *.lock) continue ;; esac
+        [ -S "$sock" ] || continue
         export WAYLAND_DISPLAY=$(basename "$sock")
         exec /usr/local/bin/noctalia
-    fi
+    done
     sleep 1
 done
 exit 1

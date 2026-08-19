@@ -117,8 +117,10 @@ COPY scripts/install-anland-kde.sh /usr/local/sbin/install-anland-kde
 # 复制 systemd services
 COPY scripts/start/niri.service /etc/systemd/system/
 COPY scripts/start/noctalia.service /etc/systemd/system/
+COPY scripts/start/noctalia-launch /usr/local/bin/noctalia-launch
 
-RUN chmod +x /usr/local/sbin/install-anland-kde && \
+RUN chmod +x /usr/local/bin/noctalia-launch && \
+    chmod +x /usr/local/sbin/install-anland-kde && \
     sed -i '/^#ParallelDownloads/s/^#//' /etc/pacman.conf && \
     sed -i '/NoExtract.*locale/d' /etc/pacman.conf && \
     sed -i '/NoExtract.*i18n/d' /etc/pacman.conf && \
@@ -144,7 +146,7 @@ RUN pacman -S --noconfirm --needed \
     libqalculate md4c tomlplusplus libical \
     libwebp libjxl librsvg jemalloc \
     noto-fonts-cjk noto-fonts-emoji \
-    alacritty rofi pcmanfm \
+    alacritty gnome-terminal rofi pcmanfm \
     lxappearance qt6ct && \
     pacman -Sc --noconfirm
 
@@ -155,10 +157,12 @@ COPY --from=noctalia-builder /out/noctalia/usr/share/noctalia /usr/local/share/n
 
 # 复制配置文件
 COPY configs/noctalia/config.toml.mobile /etc/xdg/noctalia/config.toml
+COPY configs/niri/config.kdl.mobile /etc/xdg/niri/config.kdl
 COPY configs/niri/kiauh.yaml.mobile /etc/xdg/niri/kiauh.yaml
 
 RUN mkdir -p /etc/skel/.config/noctalia /etc/skel/.config/niri && \
     cp /etc/xdg/noctalia/config.toml /etc/skel/.config/noctalia/config.toml && \
+    cp /etc/xdg/niri/config.kdl /etc/skel/.config/niri/config.kdl && \
     cp /etc/xdg/niri/kiauh.yaml /etc/skel/.config/niri/kiauh.yaml
 
 # 配置 Locale 与 SSH
@@ -203,10 +207,14 @@ MESA_LOADER_DRIVER_OVERRIDE=kgsl
 GALLIUM_DRIVER=kgsl
 FD_FORCE_KGSL=1
 FD_DEV_FEATURES=enable_tp_ubwc_flag_hint=1
-XDG_RUNTIME_DIR=/run/user/$(id -u)
-WAYLAND_DISPLAY=wayland-0
+XDG_RUNTIME_DIR=/run/user/1000
+XDG_SESSION_TYPE=wayland
+WAYLAND_DISPLAY=wayland-1
 QT_QPA_PLATFORM=wayland
 GTK_THEME=Adwaita:dark
+GTK_A11Y=none
+NO_AT_BRIDGE=1
+TMPDIR=/tmp
 XWAYLAND_GBM_DEVICE=/dev/dri/renderD128
 EOF
 
