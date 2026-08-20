@@ -35,7 +35,7 @@ FROM ogarcia/archlinux AS noctalia-builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 ARG NOCTALIA_REPO=https://github.com/noctalia-dev/noctalia.git
-ARG NOCTALIA_BRANCH=main
+ARG NOCTALIA_BRANCH=a4575781d7e9c432a58832b04e0cda310bd22b71
 
 RUN pacman -Sy --noconfirm --needed \
     meson gcc just \
