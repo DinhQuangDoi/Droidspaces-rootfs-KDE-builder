@@ -7,7 +7,7 @@ FROM ogarcia/archlinux AS niri-builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 ARG NIRI_ANLAND_REPO=https://github.com/DinhQuangDoi/niri-anland.git
-ARG NIRI_ANLAND_REF=26.4.0-anland.4
+ARG NIRI_ANLAND_REF=26.4.0-anland.5
 
 RUN pacman -Sy --noconfirm --needed \
     git curl base-devel pkgconf openssl \
