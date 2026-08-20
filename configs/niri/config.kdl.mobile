@@ -76,7 +76,7 @@ input {
 // https://niri-wm.github.io/niri/Configuration:-Outputs
 // Remember to uncomment the node by removing "/-"!
 output "anland" {
-    scale 2.3
+    scale 1.7
 }
 
 // Settings that influence how windows are positioned and sized.
@@ -317,10 +317,9 @@ window-rule {
     // block-out-from "screencast"
 }
 
-// Example: enable rounded corners for all windows.
-// (This example rule is commented out with a "/-" in front.)
-/-window-rule {
-    geometry-corner-radius 12
+// Rounded corners for all windows (26 logical pixels).
+window-rule {
+    geometry-corner-radius 26
     clip-to-geometry true
 }
 
