@@ -56,7 +56,7 @@ RUN pacman -Sy --noconfirm --needed \
     && rm -rf /var/cache/pacman/pkg/*
 
 WORKDIR /build
-RUN git clone --depth=1 --branch ${NOCTALIA_BRANCH} ${NOCTALIA_REPO} noctalia
+RUN git clone ${NOCTALIA_REPO} noctalia && git -C noctalia checkout ${NOCTALIA_BRANCH}
 WORKDIR /build/noctalia
 
 RUN meson setup build-release --buildtype=release --prefix=/usr -Dnative_optimizations=false && \

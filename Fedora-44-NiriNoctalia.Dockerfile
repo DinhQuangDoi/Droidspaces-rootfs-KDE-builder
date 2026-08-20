@@ -60,7 +60,7 @@ RUN dnf install -y --setopt=install_weak_deps=False \
     && dnf clean all
 
 WORKDIR /build
-RUN git clone --depth=1 --branch ${NOCTALIA_BRANCH} ${NOCTALIA_REPO} noctalia
+RUN git clone ${NOCTALIA_REPO} noctalia && git -C noctalia checkout ${NOCTALIA_BRANCH}
 WORKDIR /build/noctalia
 
 RUN meson setup build-release --buildtype=release --prefix=/usr -Dnative_optimizations=false && \
