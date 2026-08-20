@@ -158,10 +158,12 @@ COPY --from=noctalia-builder /out/noctalia/usr/share/noctalia /usr/local/share/n
 
 # 复制配置文件
 COPY configs/noctalia/config.toml.mobile /etc/xdg/noctalia/config.toml
+COPY configs/niri/config.kdl.mobile /etc/xdg/niri/config.kdl
 COPY configs/niri/kiauh.yaml.mobile /etc/xdg/niri/kiauh.yaml
 
 RUN mkdir -p /etc/skel/.config/noctalia /etc/skel/.config/niri && \
     cp /etc/xdg/noctalia/config.toml /etc/skel/.config/noctalia/config.toml && \
+    cp /etc/xdg/niri/config.kdl /etc/skel/.config/niri/config.kdl && \
     cp /etc/xdg/niri/kiauh.yaml /etc/skel/.config/niri/kiauh.yaml
 
 # 强制配置使用 iptables-legacy
