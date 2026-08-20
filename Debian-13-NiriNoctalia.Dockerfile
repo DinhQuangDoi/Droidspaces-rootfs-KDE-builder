@@ -200,10 +200,14 @@ MESA_LOADER_DRIVER_OVERRIDE=kgsl
 GALLIUM_DRIVER=kgsl
 FD_FORCE_KGSL=1
 FD_DEV_FEATURES=enable_tp_ubwc_flag_hint=1
-XDG_RUNTIME_DIR=/run/user/$(id -u)
-WAYLAND_DISPLAY=wayland-0
+XDG_RUNTIME_DIR=/run/user/1000
+XDG_SESSION_TYPE=wayland
+WAYLAND_DISPLAY=wayland-1
 QT_QPA_PLATFORM=wayland
 GTK_THEME=Adwaita:dark
+GTK_A11Y=none
+NO_AT_BRIDGE=1
+TMPDIR=/tmp
 EOF
 
 # Audio
