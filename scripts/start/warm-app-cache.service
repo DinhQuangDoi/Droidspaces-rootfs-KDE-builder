@@ -1,0 +1,15 @@
+[Unit]
+Description=Warm page cache for pinned apps (faster first launch)
+After=noctalia.service
+Wants=noctalia.service
+
+[Service]
+Type=oneshot
+User=1000
+Nice=10
+IOSchedulingClass=idle
+ExecStart=/usr/local/bin/warm-app-cache
+RemainAfterExit=no
+
+[Install]
+WantedBy=multi-user.target

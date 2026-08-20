@@ -125,4 +125,4 @@ show_instance_count = true
 launcher_position = "none"       # none | start | end
 launcher_icon = "grid-dots"
 active_monitor_only = false
-pinned = ["org.gnome.Terminal", "org.gnome.Nautilus", "firefox", "code.desktop", "org.gnome.Terminal.desktop"]
+pinned = ["org.gnome.Terminal", "org.gnome.Nautilus", "brave-browser", "code.desktop"]

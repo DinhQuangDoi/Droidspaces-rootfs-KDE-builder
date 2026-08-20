@@ -1,0 +1,26 @@
+#!/bin/bash
+# Warm the page cache for the apps pinned in the dock so their first launch is
+# not a 20s cold read from the sparse rootfs image. Reads each binary and its
+# shared-library closure (ldd) into the kernel page cache. Best-effort, quiet.
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+APPS="gnome-terminal nautilus pcmanfm alacritty firefox brave-browser code noctalia"
+
+warm() {
+    # cat the file into cache (fast sequential read); ignore errors.
+    [ -r "$1" ] && cat "$1" >/dev/null 2>&1
+}
+
+for app in $APPS; do
+    bin=$(command -v "$app" 2>/dev/null) || continue
+    real=$(readlink -f "$bin")
+    warm "$real"
+    # Warm the shared-library closure.
+    ldd "$real" 2>/dev/null | awk '{for(i=1;i<=NF;i++) if(substr($i,1,1)=="/") print $i}' | while read -r lib; do
+        warm "$lib"
+    done
+done
+
+# Warm noctalia's QML/assets dir (many small files -> costly cold).
+[ -d /usr/local/share/noctalia ] && find /usr/local/share/noctalia -type f -exec cat {} + >/dev/null 2>&1
+exit 0

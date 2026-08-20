@@ -76,7 +76,7 @@ input {
 // https://niri-wm.github.io/niri/Configuration:-Outputs
 // Remember to uncomment the node by removing "/-"!
 output "anland" {
-    scale 2.5
+    scale 2.3
 }
 
 // Settings that influence how windows are positioned and sized.
