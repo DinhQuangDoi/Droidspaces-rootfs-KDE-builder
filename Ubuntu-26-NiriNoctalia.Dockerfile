@@ -160,8 +160,8 @@ RUN apt-get update && \
     fonts-noto-cjk fonts-noto-color-emoji \
     # 实用工具
     gnome-terminal rofi nautilus btop vim glmark2 mesa-utils vulkan-tools \
-    # 主题工具
-    lxappearance qt6ct \
+    # 主题工具 + 图标主题
+    lxappearance qt6ct papirus-icon-theme \
     && apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -176,6 +176,22 @@ RUN curl -fsSL https://brave-browser-apt-release.s3.brave.com/brave-browser-arch
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# 修复: 移除 GNOME Terminal desktop 文件的 OnlyShowIn=GNOME;Unity;，
+# 使 niri/noctalia 等非 GNOME 环境的 launcher 能解析并启动该应用
+RUN sed -i '/^OnlyShowIn=/d' /usr/share/applications/org.gnome.Terminal.desktop
+
+# Icon 主题: Papirus-Dark (社区广泛使用的 Material/Flat icon pack) + GTK 全局配置
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends papirus-icon-theme && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    for d in /usr/share/icons/Papirus-Dark /usr/share/icons/Papirus /usr/share/icons/Adwaita; do \
+        [ -d "$d" ] && gtk-update-icon-cache -f "$d" 2>/dev/null || true; \
+    done
+
+COPY configs/gtk/gtk3-settings.ini /etc/xdg/gtk-3.0/settings.ini
+COPY configs/gtk/gtk4-settings.ini /etc/xdg/gtk-4.0/settings.ini
+
 # 复制构建产物
 COPY --from=niri-builder /out/niri/niri /usr/local/bin/niri
 COPY --from=noctalia-builder /out/noctalia/usr/bin/noctalia /usr/local/bin/noctalia
@@ -188,11 +204,13 @@ COPY configs/niri/kiauh.yaml.mobile /etc/xdg/niri/kiauh.yaml
 COPY configs/pcmanfm/default/pcmanfm.conf /etc/xdg/pcmanfm/default/pcmanfm.conf
 
 # 用户配置目录 (will be copied to user home on first login)
-RUN mkdir -p /etc/skel/.config/noctalia /etc/skel/.config/niri /etc/skel/.config/pcmanfm && \
+RUN mkdir -p /etc/skel/.config/noctalia /etc/skel/.config/niri /etc/skel/.config/pcmanfm /etc/skel/.config/gtk-3.0 /etc/skel/.config/gtk-4.0 && \
     cp /etc/xdg/noctalia/config.toml /etc/skel/.config/noctalia/config.toml && \
     cp /etc/xdg/niri/config.kdl /etc/skel/.config/niri/config.kdl && \
     cp /etc/xdg/niri/kiauh.yaml /etc/skel/.config/niri/kiauh.yaml && \
-    cp /etc/xdg/pcmanfm/default/pcmanfm.conf /etc/skel/.config/pcmanfm/default.conf
+    cp /etc/xdg/pcmanfm/default/pcmanfm.conf /etc/skel/.config/pcmanfm/default.conf && \
+    cp /etc/xdg/gtk-3.0/settings.ini /etc/skel/.config/gtk-3.0/settings.ini && \
+    cp /etc/xdg/gtk-4.0/settings.ini /etc/skel/.config/gtk-4.0/settings.ini
 
 # 强制配置使用 iptables-legacy
 RUN update-alternatives --set iptables /usr/sbin/iptables-legacy && \
