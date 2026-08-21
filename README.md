@@ -433,6 +433,57 @@ KDE 包只作为 GitHub Release 资产发布。手动运行 `build-kde-wayland.y
 - 默认密码为 `1234`，导入后应立即修改。
 - 本项目内置的预编译 Wayland 包与上游 anland 的兼容性取决于构建时的上游状态。
 
+## Niri Noctalia Shell (Branch: `niri_noctalia-shell`)
+
+本分支在标准 `Ubuntu-26-NiriNoctalia` 基础上做了以下定制（已在 container `052966` 测试通过）：
+
+- `configs/niri/config.kdl.mobile`: `scale 2.5` → `scale 1.7`；启用 `geometry-corner-radius 26` + `clip-to-geometry true`。
+- `configs/noctalia/config.toml.mobile`: dock pinned apps 改为 `org.gnome.Terminal`, `org.gnome.Nautilus`, `brave-browser`, `code.desktop`（去重 `org.gnome.Terminal.desktop`，`firefox` → `brave-browser`）。
+- `Dockerfile`: runtime 只保留 `gnome-terminal`（去掉 `kitty`, `alacritty`），只保留 `nautilus`（去掉 `pcmanfm`），保持 `rofi`, `btop`, `vim`, `lxappearance`, `qt6ct`，添加 `iio-sensor-proxy`（用于后续旋转检测）。
+- Pacing fix 在 `niri-anland` tag `26.4.0-anland.5` 中实现：修改 `redraw_queued_outputs` 只匹配 `Queued` 状态，防止 `buffer_ready` 绕过 `WaitingForEstimatedVBlank` 定时。已构建 release `v20260820-101208` / `v20260820-133210`（从 `niri_noctalia-shell` branch 构建）。
+
+### Build
+
+```bash
+# 直接通过 Actions trigger 从本分支构建
+# build_target=Ubuntu-26-KDE, build_KDE=niri-noctalia, build_KDE_plus=true, enable_anland_kde=true
+```
+
+### Container 测试
+
+- 容器名: `052966`
+- Niri socket 路径: `/run/user/1000/niri.wayland-1.{pid}.sock`
+- 当前运行参数（测试环境）：`scale 1.7` + `transform Normal`（portrait）；当需要 landscape 时可运行 `niri msg output anland transform "90"`（手动或通过后续 `monitor-sensor` 自动检测）。
+- Frame pacing 已恢复正常：`present-interval avg=7-8ms` (~125-142fps) ；重启后可能在前几秒出现 `min=2ms`（timer warm-up 过渡），稳定后无异常 `max`（无 207ms spike）。
+- No submodule for `niri-anland` or `noctalia`: Dockerfile continues to pin concrete refs via `git clone --depth=1 --branch` (see `NIRI_ANLAND_REF` / `NOCTALIA_BRANCH`).
+
+### 变更记录
+
+1. Pacing fix (`redraw_queued_outputs`): `Queued | WaitingForEstimatedVBlankAndQueued(_)` → `Queued` 只匹配 `Queued`（commit `6e8adb92`, tag `26.4.0-anland.5`，已 merge 到 `main` 前重置到 `cf653ed` 前的状态，分支 `niri_noctalia-shell` 保留全部更改）。
+2. Rootfs Dockerfile 更新 (`8552e72`): scale 1.7 + corner 26 + app list 精简 + `iio-sensor-proxy`。
+3. `niri_noctalia-shell` branch 已 push 到 `origin` 并构建成功（`v20260820-133210`）。
+4. `main` 已重置到 upstream `cf653ed` 并 fast-forward merge `3a3c902`（`StartupNotify` fix）。
+
+---
+
+---
+
+## 贡献与 Fork
+
+如果你 fork 了本仓库并想同步上游（`Goldzxcbug/Droidspaces-rootfs-KDE-builder`）的最新更改：
+
+```bash
+git remote add upstream https://github.com/Goldzxcbug/Droidspaces-rootfs-KDE-builder.git
+git fetch upstream
+git checkout main
+git merge --ff-only upstream/main
+git push origin main
+```
+
+`niri_noctalia-shell` 分支保留所有 Niri + Noctalia 定制内容，适合用于构建自己的 `Ubuntu-26-NiriNoctalia` release；`main` 仅包含上游构建基础（无 Niri/Noctalia 修改）。
+
+---
+
 ## 致谢
 
 - [Droidspaces-OSS](https://github.com/ravindu644/Droidspaces-OSS/)：本项目运行环境的基础。
