@@ -162,6 +162,8 @@ RUN apt-get update && \
     gnome-terminal rofi nautilus btop vim glmark2 mesa-utils vulkan-tools \
     # 主题工具 + 图标主题
     lxappearance qt6ct papirus-icon-theme \
+    # niri-settings GUI (PyQt6 配置工具)
+    python3-pyqt6 qt6-wayland \
     && apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -191,6 +193,19 @@ RUN apt-get update && \
 
 COPY configs/gtk/gtk3-settings.ini /etc/xdg/gtk-3.0/settings.ini
 COPY configs/gtk/gtk4-settings.ini /etc/xdg/gtk-4.0/settings.ini
+
+# niri-settings: PyQt6 GUI 配置工具 (system-wide 安装, 等价于 install.sh 选项 2)
+RUN git clone --depth=1 https://github.com/stefonarch/niri-settings /tmp/niri-settings && \
+    cp -v /tmp/niri-settings/niri-settings /usr/bin/niri-settings && \
+    chmod a+x /usr/bin/niri-settings && \
+    cp -v /tmp/niri-settings/niri-settings.desktop /usr/share/applications/niri-settings.desktop && \
+    mkdir -p /usr/lib/niri-settings/ui && \
+    cp -v /tmp/niri-settings/niri_settings.py /usr/lib/niri-settings/ && \
+    cp -av /tmp/niri-settings/ui/*.py /usr/lib/niri-settings/ui && \
+    mkdir -p /usr/share/niri-settings/translations && \
+    cp -av /tmp/niri-settings/translations/*.qm /usr/share/niri-settings/translations/ && \
+    cp -v /tmp/niri-settings/niri-settings.svg /usr/share/icons/hicolor/scalable/apps/niri-settings.svg && \
+    rm -rf /tmp/niri-settings
 
 # 复制构建产物
 COPY --from=niri-builder /out/niri/niri /usr/local/bin/niri
