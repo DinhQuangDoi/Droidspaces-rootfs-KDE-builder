@@ -7,7 +7,7 @@ FROM fedora:44 AS niri-builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 ARG NIRI_ANLAND_REPO=https://github.com/DinhQuangDoi/niri-anland.git
-ARG NIRI_ANLAND_REF=26.4.0-anland.6
+ARG NIRI_ANLAND_REF=26.4.0-anland.7
 
 RUN dnf install -y --setopt=install_weak_deps=False \
     git curl gcc gcc-c++ make pkgconfig openssl-devel \
