@@ -7,7 +7,7 @@ FROM ubuntu:26.04 AS niri-builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 ARG NIRI_ANLAND_REPO=https://github.com/DinhQuangDoi/niri-anland.git
-ARG NIRI_ANLAND_REF=26.4.0-anland.7
+ARG NIRI_ANLAND_REF=26.4.0-anland.6
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git curl build-essential pkg-config libssl-dev libwayland-dev wayland-protocols \
