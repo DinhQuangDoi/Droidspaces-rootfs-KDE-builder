@@ -500,7 +500,8 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.setup.outputs.build_id }}
-          name: "Droidspaces RootFS ${{ needs.setup.outputs.build_id }}"
+          name: "rootfs ${{ github.event.inputs.build_target }} ${{ needs.setup.outputs.build_id }}"
+          prerelease: true
           files: "release_assets/*"
           body: |
             Droidspaces RootFS Automated Build

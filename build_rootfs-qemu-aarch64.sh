@@ -151,7 +151,7 @@ elif [ "$ENABLE_anland_kde" = "true" ]; then
 else
   DISPLAY_BACKEND="X11"
 fi
-FINAL_NAME="${PREFIX}-${DISPLAY_BACKEND}-Droidspaces-rootfs-${TARGET_ARCH}-${VERSION}.tar.xz"
+FINAL_NAME="${PREFIX}-${TARGET_ARCH}-${VERSION}.tar.xz"
 
 echo "正在运行 Docker Buildx ($PLATFORM 跨架构模式)..."
 
