@@ -140,7 +140,7 @@ layout {
         // - CSS-like notation: "rgb(255, 127, 0)", rgba(), hsl() and a few others.
 
         // Color of the ring on the active monitor.
-        active-color "#7fc8ff"
+        active-color "#aaaaff"
 
         // Color of the ring on inactive monitors.
         //
@@ -319,7 +319,7 @@ window-rule {
 
 // Rounded corners for all windows (26 logical pixels).
 window-rule {
-    geometry-corner-radius 26
+    geometry-corner-radius 8
     clip-to-geometry true
 }
 
