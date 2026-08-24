@@ -531,6 +531,5 @@ jobs:
             - Docker Integration: ${{ github.event.inputs.enable_docker }}
             
           draft: false
-          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
