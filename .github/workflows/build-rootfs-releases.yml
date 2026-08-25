@@ -496,11 +496,16 @@ jobs:
             sed -i "s/USERNAME=\"Gold\"/USERNAME=\"${CUSTOM_USERNAME}\"/g" "release_assets/on_aaudio_${PA_CHOICE}.sh"
           fi
           
-      - name: 创建统一 Release
+      - name: 删除旧的 rootfs-dev 滚动 Release
+        run: gh release delete rootfs-dev --repo "${{ github.repository }}" --yes --cleanup-tag || true
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: 更新 rootfs-dev 滚动 Release
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: ${{ needs.setup.outputs.build_id }}
-          name: "rootfs ${{ github.event.inputs.build_target }} ${{ needs.setup.outputs.build_id }}"
+          tag_name: rootfs-dev
+          name: "rootfs-dev (${{ github.event.inputs.build_target }} ${{ needs.setup.outputs.build_id }})"
           prerelease: true
           files: "release_assets/*"
           body: |
