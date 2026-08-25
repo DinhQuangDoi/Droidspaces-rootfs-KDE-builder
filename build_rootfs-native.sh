@@ -41,7 +41,9 @@ ANLAND_KDE_ROLLING_RELEASE_TAG="anland-kde-packages"
 
 if [ "${BUILD_KDE:-}" = "mobile" ] || [ "${BUILD_KDE:-}" = "niri-noctalia" ]; then
   ENABLE_anland_kde="true"
-  PulseAudio="none"
+  if [ "${BUILD_KDE:-}" = "mobile" ]; then
+    PulseAudio="none"
+  fi
 fi
 
 resolve_anland_kde_release_tag() {

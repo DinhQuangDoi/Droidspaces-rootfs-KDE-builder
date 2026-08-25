@@ -221,7 +221,7 @@ jobs:
             ENABLE_ANLAND_KDE="true"
           fi
 
-          if [ "$ENABLE_ANLAND_KDE" = "true" ]; then
+          if [ "$ENABLE_ANLAND_KDE" = "true" ] && [ "$BUILD_KDE" != "niri-noctalia" ]; then
             echo "提示: 选择了启用 Wayland 支持，PulseAudio 将被禁用，Anland app 自带音频"
             PULSE_AUDIO="none"
           fi
