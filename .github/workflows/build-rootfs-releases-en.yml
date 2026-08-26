@@ -18,16 +18,17 @@ on:
           - 'Arch-KDE'
           - 'all'
           - 'all-wayland'
+          - 'all-niri-noctalia'
       custom_username:
-        description: 'Custom username (default: Gold)'
+        description: 'Custom username (default Gold)'
         required: false
         type: string
         default: 'Gold'
       build_KDE:
-        description: 'Desktop choice (conc=compact min=minimal mobile=Plasma Mobile none=CLI niri-noctalia=Wayland WM+shell)'
+        description: 'Desktop selection (conc=compact min=minimal mobile=Plasma Mobile none=CLI niri-noctalia=Wayland WM+shell)'
         required: true
         type: choice
-        default: 'min'
+        default: 'niri-noctalia'
         options: 
           - 'conc'
           - 'min'
@@ -152,7 +153,16 @@ jobs:
               WAYLAND_PACKAGE_TARGET="all"
               ;;
             all-wayland)
-              TEMPLATES=$(jq -n -c '["Debian-13-KDE","Ubuntu-26-KDE","Fedora-43-KDE","Fedora-44-KDE","Arch-KDE"]')
+              if [ "$BUILD_KDE" = "niri-noctalia" ]; then
+                TEMPLATES=$(jq -n -c '["Debian-13-NiriNoctalia","Ubuntu-26-NiriNoctalia","Fedora-44-NiriNoctalia","Arch-NiriNoctalia"]')
+              else
+                TEMPLATES=$(jq -n -c '["Debian-13-KDE","Ubuntu-26-KDE","Fedora-43-KDE","Fedora-44-KDE","Arch-KDE"]')
+              fi
+              ENABLE_ANLAND_KDE="true"
+              WAYLAND_PACKAGE_TARGET="all"
+              ;;
+            all-niri-noctalia)
+              TEMPLATES=$(jq -n -c '["Debian-13-NiriNoctalia","Ubuntu-26-NiriNoctalia","Fedora-44-NiriNoctalia","Arch-NiriNoctalia"]')
               ENABLE_ANLAND_KDE="true"
               WAYLAND_PACKAGE_TARGET="all"
               ;;
@@ -174,10 +184,10 @@ jobs:
               ;;
             Fedora-43-KDE)
               if [ "$BUILD_KDE" = "niri-noctalia" ]; then
-                TEMPLATES=$(jq -n -c '["Fedora-43-NiriNoctalia"]')
-              else
-                TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
+                echo "Error: Fedora-43 currently does not support niri-noctalia mode (please use Fedora-44-KDE)" >&2
+                exit 1
               fi
+              TEMPLATES=$(jq -n -c --arg t "$TARGET" '[$t]')
               WAYLAND_PACKAGE_TARGET="Fedora43"
               ;;
             Fedora-44-KDE)
@@ -206,8 +216,8 @@ jobs:
             exit 1
           fi
 
-          if [ "$BUILD_KDE" = "niri-noctalia" ] && [ "$TARGET" != "Ubuntu-26-KDE" ] && [ "$TARGET" != "Debian-13-KDE" ] && [ "$TARGET" != "Fedora-43-KDE" ] && [ "$TARGET" != "Fedora-44-KDE" ] && [ "$TARGET" != "Arch-KDE" ] && [ "$TARGET" != "all-wayland" ]; then
-            echo "Error: niri-noctalia is currently supported on Ubuntu-26-KDE, Debian-13-KDE, Fedora-43-KDE, Fedora-44-KDE, Arch-KDE, all-wayland" >&2
+          if [ "$BUILD_KDE" = "niri-noctalia" ] && [ "$TARGET" != "Ubuntu-26-KDE" ] && [ "$TARGET" != "Debian-13-KDE" ] && [ "$TARGET" != "Fedora-44-KDE" ] && [ "$TARGET" != "Arch-KDE" ] && [ "$TARGET" != "all-wayland" ] && [ "$TARGET" != "all-niri-noctalia" ]; then
+            echo "Error: niri-noctalia is currently supported on Ubuntu-26-KDE, Debian-13-KDE, Fedora-44-KDE, Arch-KDE, all-wayland, all-niri-noctalia" >&2
             exit 1
           fi
 

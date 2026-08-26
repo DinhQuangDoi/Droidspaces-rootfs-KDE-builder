@@ -31,41 +31,13 @@ RUN cargo build --release --bin niri && \
     mkdir -p /out/niri && \
     cp target/release/niri /out/niri/
 
-# Stage 3: Build noctalia
-FROM debian:trixie AS noctalia-builder
-
-ENV DEBIAN_FRONTEND=noninteractive
-ARG NOCTALIA_REPO=https://github.com/noctalia-dev/noctalia.git
-ARG NOCTALIA_BRANCH=a4575781d7e9c432a58832b04e0cda310bd22b71
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    meson g++ just \
-    libwayland-dev wayland-protocols \
-    libegl-dev libgles-dev \
-    libfreetype-dev libfontconfig-dev \
-    libcairo2-dev libpango1.0-dev libharfbuzz-dev \
-    libxkbcommon-dev libglib2.0-dev \
-    libsecret-1-dev libsodium-dev \
-    libsdbus-c++-dev libpipewire-0.3-dev libwireplumber-0.5-dev \
-    libpam0g-dev libpolkit-agent-1-dev libpolkit-gobject-1-dev \
-    libcurl4-gnutls-dev libwebp-dev libjxl-dev libsndfile1-dev librsvg2-dev \
-    libqalculate-dev libxml2-dev \
-    libmd4c-dev libtomlplusplus-dev libical-dev \
-    nlohmann-json3-dev libstb-dev \
-    libjemalloc-dev \
-    ninja-build pkg-config \
-    ca-certificates \
-    git \
-    && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /build
-RUN git clone ${NOCTALIA_REPO} noctalia && git -C noctalia checkout ${NOCTALIA_BRANCH}
-WORKDIR /build/noctalia
-
-RUN meson setup build-release --buildtype=release --prefix=/usr -Dnative_optimizations=false && \
-    meson compile -C build-release && \
-    mkdir -p /out/noctalia && \
-    DESTDIR=/out/noctalia meson install -C build-release
+# Stage 3: Download pre-built noctalia release
+FROM alpine:latest AS noctalia-downloader
+ARG NOCTALIA_RELEASE_REPO=DinhQuangDoi/noctalia-arm64
+ARG NOCTALIA_RELEASE_TAG=noctalia-arm64
+RUN apk add --no-cache curl tar ca-certificates
+RUN mkdir -p /out && \
+    curl -fsSL "https://github.com/${NOCTALIA_RELEASE_REPO}/releases/download/${NOCTALIA_RELEASE_TAG}/noctalia-arm64.tar.gz" | tar -xz -C /out
 
 # Stage 4: Assemble rootfs
 FROM debian:trixie AS customizer
@@ -153,8 +125,9 @@ RUN apt-get update && \
 
 # 复制构建产物
 COPY --from=niri-builder /out/niri/niri /usr/local/bin/niri
-COPY --from=noctalia-builder /out/noctalia/usr/bin/noctalia /usr/local/bin/noctalia
-COPY --from=noctalia-builder /out/noctalia/usr/share/noctalia /usr/local/share/noctalia
+COPY --from=noctalia-downloader /out/usr/local/bin/noctalia /usr/local/bin/noctalia
+COPY --from=noctalia-downloader /out/usr/local/share/noctalia /usr/local/share/noctalia
+COPY --from=noctalia-downloader /out/usr/share/noctalia /usr/share/noctalia
 
 # 复制配置文件
 COPY configs/noctalia/config.toml.mobile /etc/xdg/noctalia/config.toml
