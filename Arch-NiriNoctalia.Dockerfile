@@ -13,7 +13,7 @@ RUN pacman -Sy --noconfirm --needed \
     git curl base-devel pkgconf openssl \
     wayland wayland-protocols \
     libxkbcommon mesa libinput systemd \
-    libseat pipewire libdrm libgbm pango libdisplay-info clang \
+    seatd pipewire libdrm pango libdisplay-info clang \
     && rm -rf /var/cache/pacman/pkg/*
 
 # Install Rust (stable 1.87, matches niri-anland fork CI)
@@ -91,7 +91,7 @@ RUN pacman -S --noconfirm --needed \
     # 内核模块支持
     kmod tzdata tar \
     # Wayland/图形栈
-    wayland libxkbcommon mesa libinput libseat pipewire wireplumber \
+    wayland libxkbcommon mesa libinput seatd pipewire wireplumber \
     libdisplay-info \
     libsdbus-c++ libsodium libsecret polkit wireplumber \
     libqalculate md4c tomlplusplus libical \
