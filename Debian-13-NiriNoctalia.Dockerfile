@@ -119,16 +119,39 @@ RUN apt-get update && \
     # 字体
     fonts-noto-cjk fonts-noto-color-emoji \
     # 实用工具
-    alacritty gnome-terminal nautilus btop papirus-icon-theme python3-pyqt6 qt6-wayland \
+    gnome-terminal nautilus btop papirus-icon-theme python3-pyqt6 qt6-wayland \
     # 主题工具
     lxappearance qt6ct \
     && apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Brave Browser repository (after curl/gnupg installed)
+RUN curl -fsSL https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg | \
+    gpg --dearmor -o /usr/share/keyrings/brave-browser-archive-keyring.gpg && \
+    curl -fsSL https://brave-browser-apt-release.s3.brave.com/brave-browser.sources | \
+    tee /etc/apt/sources.list.d/brave-browser-release.sources > /dev/null && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends brave-browser && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # 修复: 移除 GNOME Terminal & Nautilus desktop 文件的 OnlyShowIn
 RUN sed -i '/^OnlyShowIn=/d' /usr/share/applications/org.gnome.Terminal.desktop 2>/dev/null || true && \
     sed -i '/^OnlyShowIn=/d' /usr/share/applications/org.gnome.Nautilus.desktop 2>/dev/null || true
+
+# niri-settings: PyQt6 GUI 配置工具
+RUN git clone --depth=1 https://github.com/stefonarch/niri-settings /tmp/niri-settings && \
+    cp -v /tmp/niri-settings/niri-settings /usr/bin/niri-settings && \
+    chmod a+x /usr/bin/niri-settings && \
+    cp -v /tmp/niri-settings/niri-settings.desktop /usr/share/applications/niri-settings.desktop && \
+    mkdir -p /usr/lib/niri-settings/ui && \
+    cp -v /tmp/niri-settings/niri_settings.py /usr/lib/niri-settings/ && \
+    cp -av /tmp/niri-settings/ui/*.py /usr/lib/niri-settings/ui && \
+    mkdir -p /usr/share/niri-settings/translations && \
+    cp -av /tmp/niri-settings/translations/*.qm /usr/share/niri-settings/translations/ && \
+    cp -v /tmp/niri-settings/niri-settings.svg /usr/share/icons/hicolor/scalable/apps/niri-settings.svg && \
+    rm -rf /tmp/niri-settings
 
 # 复制构建产物
 COPY --from=niri-builder /out/niri/niri /usr/local/bin/niri
@@ -362,6 +385,10 @@ if [ -f /etc/logrotate.conf ]; then
     if ! grep -q "maxsize 50M" /etc/logrotate.conf; then
         echo "maxsize 50M" >> /etc/logrotate.conf
     fi
+fi
+
+if [ -f /opt/brave.com/brave/brave-browser ]; then
+    sed -i 's|"$HERE/brave" "$@" || true|"$HERE/brave" --ozone-platform=wayland "$@" || true|' /opt/brave.com/brave/brave-browser
 fi
 
 echo "Post-extraction fixes applied on $(date)" > /etc/droidspaces

@@ -97,23 +97,46 @@ RUN dnf install -y --setopt=install_weak_deps=False \
     # Wayland/图形栈运行时
     dnf install -y --setopt=install_weak_deps=False \
     libwayland-client libxkbcommon libdrm libinput libseat pipewire pipewire-pulse wireplumber \
-    libdisplay-info \
+    libdisplay-info mesa-libGLES mesa-libEGL \
     # Noctalia runtime libs
-    sdbus-cpp-devel libsodium-devel libsecret-devel \
+    sdbus-cpp-devel libsodium libsodium-devel libsecret-devel \
     polkit-devel wireplumber-devel \
-    libqalculate-devel md4c-devel tomlplusplus-devel libical-devel \
-    libwebp-devel libjxl-devel librsvg2-devel jemalloc-devel \
+    libqalculate-devel md4c-devel tomlplusplus-devel libical libical-devel \
+    libwebp-devel libjxl libjxl-devel librsvg2-devel jemalloc-devel \
     google-noto-cjk-fonts google-noto-emoji-color-fonts \
-    alacritty gnome-terminal nautilus btop papirus-icon-theme python3-pyqt6 qt6-qtwayland \
+    gnome-terminal nautilus btop papirus-icon-theme python3-pyqt6 qt6-qtwayland \
     lxappearance qt6ct && \
     echo "%_install_langs all" > /etc/rpm/macros.image-language-conf && \
     dnf upgrade -y && \
     dnf clean all && \
     rm -rf /var/cache/dnf
 
+# SONAME 兼容 Symlinks (Noctalia 运行时)
+RUN ln -sf /lib64/libsodium.so /lib64/libsodium.so.23 2>/dev/null || true && \
+    ln -sf /lib64/libcurl.so.4 /lib64/libcurl-gnutls.so.4 2>/dev/null || true
+
+# Brave Browser DNF repo
+RUN dnf install -y dnf-plugins-core && \
+    dnf config-manager --add-repo https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo && \
+    dnf install -y brave-browser && \
+    dnf clean all
+
 # 修复: 移除 GNOME Terminal & Nautilus desktop 文件的 OnlyShowIn
 RUN sed -i '/^OnlyShowIn=/d' /usr/share/applications/org.gnome.Terminal.desktop 2>/dev/null || true && \
     sed -i '/^OnlyShowIn=/d' /usr/share/applications/org.gnome.Nautilus.desktop 2>/dev/null || true
+
+# niri-settings: PyQt6 GUI 配置工具
+RUN git clone --depth=1 https://github.com/stefonarch/niri-settings /tmp/niri-settings && \
+    cp -v /tmp/niri-settings/niri-settings /usr/bin/niri-settings && \
+    chmod a+x /usr/bin/niri-settings && \
+    cp -v /tmp/niri-settings/niri-settings.desktop /usr/share/applications/niri-settings.desktop && \
+    mkdir -p /usr/lib/niri-settings/ui && \
+    cp -v /tmp/niri-settings/niri_settings.py /usr/lib/niri-settings/ && \
+    cp -av /tmp/niri-settings/ui/*.py /usr/lib/niri-settings/ui && \
+    mkdir -p /usr/share/niri-settings/translations && \
+    cp -av /tmp/niri-settings/translations/*.qm /usr/share/niri-settings/translations/ && \
+    cp -v /tmp/niri-settings/niri-settings.svg /usr/share/icons/hicolor/scalable/apps/niri-settings.svg && \
+    rm -rf /tmp/niri-settings
 
 # 复制构建产物
 COPY --from=niri-builder /out/niri/niri /usr/local/bin/niri
@@ -349,6 +372,10 @@ fi
 
 # nsswitch for DNS
 sed -i 's/^hosts:.*/hosts: files dns myhostname/' /etc/nsswitch.conf
+
+if [ -f /opt/brave.com/brave/brave-browser ]; then
+    sed -i 's|"$HERE/brave" "$@" || true|"$HERE/brave" --ozone-platform=wayland "$@" || true|' /opt/brave.com/brave/brave-browser
+fi
 
 echo "Post-extraction fixes applied on $(date)" > /etc/droidspaces
 EOF_RUN

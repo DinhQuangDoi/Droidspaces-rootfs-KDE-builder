@@ -92,18 +92,37 @@ RUN pacman -S --noconfirm --needed \
     kmod tzdata tar \
     # Wayland/图形栈
     wayland libxkbcommon mesa libinput seatd pipewire wireplumber \
-    libdisplay-info \
+    libdisplay-info libcurl-compat \
     sdbus-cpp libsodium libsecret polkit wireplumber \
     libqalculate md4c tomlplusplus libical \
     libwebp libjxl librsvg jemalloc \
     noto-fonts-cjk noto-fonts-emoji \
-    alacritty gnome-terminal nautilus btop papirus-icon-theme python-pyqt6 qt6-wayland \
+    gnome-terminal nautilus btop papirus-icon-theme python-pyqt6 qt6-wayland \
     lxappearance qt6ct && \
     pacman -Sc --noconfirm
+
+# SONAME 兼容 Symlinks (Noctalia 运行时)
+RUN ln -sf /usr/lib/libsodium.so /usr/lib/libsodium.so.23 2>/dev/null || true && \
+    ln -sf /usr/lib/libical.so /usr/lib/libical.so.3 2>/dev/null || true && \
+    ln -sf /usr/lib/libjxl.so /usr/lib/libjxl.so.0.11 2>/dev/null || true && \
+    ln -sf /usr/lib/libxml2.so.2 /usr/lib/libxml2.so.16 2>/dev/null || true
 
 # 修复: 移除 GNOME Terminal & Nautilus desktop 文件的 OnlyShowIn
 RUN sed -i '/^OnlyShowIn=/d' /usr/share/applications/org.gnome.Terminal.desktop 2>/dev/null || true && \
     sed -i '/^OnlyShowIn=/d' /usr/share/applications/org.gnome.Nautilus.desktop 2>/dev/null || true
+
+# niri-settings: PyQt6 GUI 配置工具
+RUN git clone --depth=1 https://github.com/stefonarch/niri-settings /tmp/niri-settings && \
+    cp -v /tmp/niri-settings/niri-settings /usr/bin/niri-settings && \
+    chmod a+x /usr/bin/niri-settings && \
+    cp -v /tmp/niri-settings/niri-settings.desktop /usr/share/applications/niri-settings.desktop && \
+    mkdir -p /usr/lib/niri-settings/ui && \
+    cp -v /tmp/niri-settings/niri_settings.py /usr/lib/niri-settings/ && \
+    cp -av /tmp/niri-settings/ui/*.py /usr/lib/niri-settings/ui && \
+    mkdir -p /usr/share/niri-settings/translations && \
+    cp -av /tmp/niri-settings/translations/*.qm /usr/share/niri-settings/translations/ && \
+    cp -v /tmp/niri-settings/niri-settings.svg /usr/share/icons/hicolor/scalable/apps/niri-settings.svg && \
+    rm -rf /tmp/niri-settings
 
 # 复制构建产物
 COPY --from=niri-builder /out/niri/niri /usr/local/bin/niri

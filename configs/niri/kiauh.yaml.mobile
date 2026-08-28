@@ -42,9 +42,8 @@ startup: []
 
 # Key bindings (Super = Mod4)
 bindings:
-  # Terminal (alacritty)
-  - { key: "Return", mods: ["Super"], action: "spawn", command: "alacritty" }
-  # GNOME Terminal (for vim/btop with dedicated icon)
+  # GNOME Terminal
+  - { key: "Return", mods: ["Super"], action: "spawn", command: "gnome-terminal" }
   - { key: "Return", mods: ["Super", "Shift"], action: "spawn", command: "gnome-terminal" }
   # Launcher (rofi via noctalia)
   - { key: "Space", mods: ["Super"], action: "spawn", command: "noctalia-launcher" }

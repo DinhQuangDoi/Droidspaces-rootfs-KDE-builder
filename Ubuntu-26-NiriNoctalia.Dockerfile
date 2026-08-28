@@ -130,7 +130,7 @@ RUN apt-get update && \
     # 字体
     fonts-noto-cjk fonts-noto-color-emoji \
     # 实用工具
-    alacritty gnome-terminal nautilus btop vim glmark2 mesa-utils vulkan-tools \
+    gnome-terminal nautilus btop vim glmark2 mesa-utils vulkan-tools \
     # 主题工具 + 图标主题
     lxappearance qt6ct papirus-icon-theme \
     # niri-settings GUI (PyQt6 配置工具)
