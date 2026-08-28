@@ -93,7 +93,7 @@ RUN pacman -S --noconfirm --needed \
     # Wayland/图形栈
     wayland libxkbcommon mesa libinput seatd pipewire wireplumber \
     libdisplay-info \
-    libsdbus-c++ libsodium libsecret polkit wireplumber \
+    sdbus-cpp libsodium libsecret polkit wireplumber \
     libqalculate md4c tomlplusplus libical \
     libwebp libjxl librsvg jemalloc \
     noto-fonts-cjk noto-fonts-emoji \
