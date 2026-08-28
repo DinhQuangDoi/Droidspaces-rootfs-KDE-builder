@@ -117,7 +117,9 @@ COPY --from=noctalia-downloader /out/usr/local/bin/noctalia /usr/local/bin/nocta
 COPY --from=noctalia-downloader /out/usr/local/share/noctalia /usr/local/share/noctalia
 COPY --from=noctalia-downloader /out/usr/share/noctalia /usr/share/noctalia
 
-RUN chmod +x /usr/local/bin/niri /usr/local/bin/noctalia /usr/local/bin/noctalia-launch
+RUN chmod +x /usr/local/bin/niri /usr/local/bin/noctalia /usr/local/bin/noctalia-launch && \
+    ln -sf /usr/local/bin/niri /usr/bin/niri && \
+    ln -sf /usr/local/bin/noctalia /usr/bin/noctalia
 
 # 复制配置文件
 COPY configs/noctalia/config.toml.mobile /etc/xdg/noctalia/config.toml
