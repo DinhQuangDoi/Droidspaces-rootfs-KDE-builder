@@ -116,8 +116,7 @@ RUN ln -sf /lib64/libsodium.so /lib64/libsodium.so.23 2>/dev/null || true && \
     ln -sf /lib64/libcurl.so.4 /lib64/libcurl-gnutls.so.4 2>/dev/null || true
 
 # Brave Browser DNF repo
-RUN dnf install -y dnf-plugins-core && \
-    dnf config-manager --add-repo https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo && \
+RUN curl -fsSL https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo -o /etc/yum.repos.d/brave-browser.repo && \
     dnf install -y brave-browser && \
     dnf clean all
 
