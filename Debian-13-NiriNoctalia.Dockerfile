@@ -62,6 +62,11 @@ WORKDIR /build
 RUN git clone --depth=1 --branch ${NOCTALIA_BRANCH} ${NOCTALIA_REPO} noctalia
 WORKDIR /build/noctalia
 
+RUN git clone --depth 1 --branch 1.47 https://gitlab.freedesktop.org/wayland/wayland-protocols.git /tmp/wayland-protocols && \
+    meson setup /tmp/wayland-protocols/build /tmp/wayland-protocols --prefix=/usr -Dtests=false && \
+    ninja -C /tmp/wayland-protocols/build install && \
+    rm -rf /tmp/wayland-protocols
+
 RUN meson setup build-release --buildtype=release --prefix=/usr -Dnative_optimizations=false && \
     meson compile -C build-release && \
     mkdir -p /out/noctalia && \
