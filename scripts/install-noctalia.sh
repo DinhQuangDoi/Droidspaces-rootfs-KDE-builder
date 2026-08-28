@@ -5,9 +5,10 @@
 set -euo pipefail
 
 TARGET_DIR="${1:-/}"
+NOCTALIA_DISTRO="${NOCTALIA_DISTRO:-ubuntu26}"
 NOCTALIA_RELEASE_REPO="${NOCTALIA_RELEASE_REPO:-DinhQuangDoi/noctalia-arm64}"
 NOCTALIA_RELEASE_TAG="${NOCTALIA_RELEASE_TAG:-noctalia-arm64}"
-DOWNLOAD_URL="https://github.com/${NOCTALIA_RELEASE_REPO}/releases/download/${NOCTALIA_RELEASE_TAG}/noctalia-arm64.tar.gz"
+DOWNLOAD_URL="https://github.com/${NOCTALIA_RELEASE_REPO}/releases/download/${NOCTALIA_RELEASE_TAG}/noctalia-${NOCTALIA_DISTRO}-arm64.tar.gz"
 
 echo "=== Installing Noctalia from ${DOWNLOAD_URL} ==="
 

@@ -36,7 +36,7 @@ ARG NOCTALIA_RELEASE_REPO=DinhQuangDoi/noctalia-arm64
 ARG NOCTALIA_RELEASE_TAG=noctalia-arm64
 RUN apk add --no-cache curl tar ca-certificates
 RUN mkdir -p /out && \
-    curl -fsSL "https://github.com/${NOCTALIA_RELEASE_REPO}/releases/download/${NOCTALIA_RELEASE_TAG}/noctalia-arm64.tar.gz" | tar -xz -C /out
+    curl -fsSL "https://github.com/${NOCTALIA_RELEASE_REPO}/releases/download/${NOCTALIA_RELEASE_TAG}/noctalia-arch-arm64.tar.gz" | tar -xz -C /out
 
 # Stage 4: Assemble rootfs
 FROM ogarcia/archlinux AS customizer
@@ -61,6 +61,7 @@ ARG USERNAME
 ######################################################
 
 # 复制自定义脚本
+COPY scripts/ds-diag /usr/local/bin/ds-diag
 COPY scripts/install-usb-manager.sh /usr/local/sbin/install-droidspaces-usb-manager
 COPY scripts/systemd257.sh /usr/local/sbin/systemd257
 COPY scripts/install-anland-kde.sh /usr/local/sbin/install-anland-kde
@@ -70,7 +71,8 @@ COPY scripts/start/niri.service /etc/systemd/system/
 COPY scripts/start/noctalia.service /etc/systemd/system/
 COPY scripts/start/noctalia-launch /usr/local/bin/noctalia-launch
 
-RUN chmod +x /usr/local/bin/noctalia-launch && \
+RUN chmod +x /usr/local/bin/ds-diag && \
+    chmod +x /usr/local/bin/noctalia-launch && \
     chmod +x /usr/local/sbin/install-anland-kde && \
     sed -i '/^#ParallelDownloads/s/^#//' /etc/pacman.conf && \
     sed -i '/NoExtract.*locale/d' /etc/pacman.conf && \
@@ -100,13 +102,6 @@ RUN pacman -S --noconfirm --needed \
     gnome-terminal nautilus btop papirus-icon-theme python-pyqt6 qt6-wayland \
     lxappearance qt6ct && \
     pacman -Sc --noconfirm
-
-# SONAME 兼容 Symlinks (Noctalia 运行时)
-RUN ln -sf /usr/lib/libsodium.so /usr/lib/libsodium.so.23 2>/dev/null || true && \
-    ln -sf /usr/lib/libical.so /usr/lib/libical.so.3 2>/dev/null || true && \
-    ln -sf /usr/lib/libjxl.so /usr/lib/libjxl.so.0.11 2>/dev/null || true && \
-    ln -sf /usr/lib/libjxl_threads.so /usr/lib/libjxl_threads.so.0.11 2>/dev/null || true && \
-    ln -sf /usr/lib/libxml2.so /usr/lib/libxml2.so.2 2>/dev/null || true
 
 # 修复: 移除 GNOME Terminal & Nautilus desktop 文件的 OnlyShowIn
 RUN sed -i '/^OnlyShowIn=/d' /usr/share/applications/org.gnome.Terminal.desktop 2>/dev/null || true && \

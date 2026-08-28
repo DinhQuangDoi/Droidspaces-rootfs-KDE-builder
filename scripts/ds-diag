@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+# ds-diag — Droidspaces Anland & Niri+Noctalia Diagnostic Tool
+set -euo pipefail
+
+REPORT_FILE="/tmp/anland-bugreport.txt"
+exec > >(tee "$REPORT_FILE") 2>&1
+
+echo "========================================================"
+echo "      DROIDSPACES ANLAND DIAGNOSTIC REPORT              "
+echo "  Date: $(date)"
+echo "========================================================"
+echo ""
+
+echo "--- 1. SYSTEM & DISTRO INFO ---"
+if [ -f /etc/os-release ]; then
+    grep -E "^(PRETTY_NAME|NAME|VERSION)=" /etc/os-release
+fi
+echo "Kernel: $(uname -a)"
+echo "Architecture: $(uname -m)"
+echo ""
+
+echo "--- 2. DISPLAY SOCKETS & DRIVERS ---"
+echo "ANLAND Socket (/run/display.sock):"
+if [ -S /run/display.sock ]; then
+    echo "  [PASS] /run/display.sock exists"
+    ls -l /run/display.sock
+else
+    echo "  [FAIL] /run/display.sock DOES NOT EXIST"
+fi
+
+echo "Wayland Sockets in /run/user/1000:"
+if ls /run/user/1000/wayland-* 2>/dev/null; then
+    echo "  [PASS] Active Wayland socket found"
+else
+    echo "  [FAIL] No wayland-* socket in /run/user/1000"
+fi
+echo ""
+
+echo "--- 3. GPU ACCELERATION CHECK ---"
+if command -v glxinfo >/dev/null 2>&1; then
+    RENDERER=$(glxinfo 2>&1 | grep "OpenGL renderer" || true)
+    echo "$RENDERER"
+    if echo "$RENDERER" | grep -qiE "adreno|freedreno|kgsl|fd7"; then
+        echo "  [PASS] Hardware GPU acceleration ACTIVE (Adreno/KGSL)"
+    elif echo "$RENDERER" | grep -qi "llvmpipe"; then
+        echo "  [FAIL] Software rendering in use (LLVMpipe Fallback!)"
+        echo "  -> Check /etc/environment or ~/.config/environment.d/90-anland-gpu.conf"
+    fi
+else
+    echo "  [WARN] glxinfo tool not installed"
+fi
+
+if [ -e /dev/kgsl-3d0 ]; then
+    echo "  [PASS] /dev/kgsl-3d0 device present"
+else
+    echo "  [WARN] /dev/kgsl-3d0 not found"
+fi
+if [ -e /dev/dri/renderD128 ]; then
+    echo "  [PASS] /dev/dri/renderD128 DRM render node present"
+else
+    echo "  [WARN] /dev/dri/renderD128 DRM render node not found"
+fi
+echo ""
+
+echo "--- 4. ENVIRONMENT VARIABLES ---"
+env | grep -E "^(ANLAND_|GALLIUM_|MESA_|WAYLAND_|NIRI_|XDG_|GTK_)" || echo "No matching env vars"
+echo ""
+
+echo "--- 5. EXECUTABLE SHARED LIBRARIES (LDD CHECK) ---"
+if command -v ldd >/dev/null 2>&1; then
+    echo "Noctalia binary check:"
+    if command -v noctalia >/dev/null 2>&1; then
+        MISSING_NOCTALIA=$(ldd "$(which noctalia)" 2>&1 | grep "not found" || true)
+        if [ -n "$MISSING_NOCTALIA" ]; then
+            echo "  [FAIL] Missing shared libraries for noctalia:"
+            echo "$MISSING_NOCTALIA"
+        else
+            echo "  [PASS] All shared libraries for noctalia resolved OK"
+        fi
+    else
+        echo "  [WARN] noctalia binary not found in PATH"
+    fi
+
+    echo "Niri binary check:"
+    if command -v niri >/dev/null 2>&1; then
+        MISSING_NIRI=$(ldd "$(which niri)" 2>&1 | grep "not found" || true)
+        if [ -n "$MISSING_NIRI" ]; then
+            echo "  [FAIL] Missing shared libraries for niri:"
+            echo "$MISSING_NIRI"
+        else
+            echo "  [PASS] All shared libraries for niri resolved OK"
+        fi
+    else
+        echo "  [WARN] niri binary not found in PATH"
+    fi
+fi
+echo ""
+
+echo "--- 6. RECENT NIRI COMPOSITOR LOGS ---"
+if command -v journalctl >/dev/null 2>&1; then
+    journalctl --user -u niri -n 30 --no-pager 2>/dev/null || echo "No niri user journal logs available"
+else
+    echo "journalctl not available"
+fi
+echo ""
+
+echo "--- 7. RECENT NOCTALIA SHELL LOGS ---"
+if command -v journalctl >/dev/null 2>&1; then
+    journalctl --user -u noctalia -n 30 --no-pager 2>/dev/null || echo "No noctalia user journal logs available"
+else
+    echo "journalctl not available"
+fi
+echo ""
+
+echo "========================================================"
+echo "Diagnostic report written to: $REPORT_FILE"
+echo "You can share this report file when seeking support."
+echo "========================================================"

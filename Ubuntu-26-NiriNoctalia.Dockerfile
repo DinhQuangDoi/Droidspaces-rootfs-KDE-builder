@@ -38,7 +38,7 @@ ARG NOCTALIA_RELEASE_REPO=DinhQuangDoi/noctalia-arm64
 ARG NOCTALIA_RELEASE_TAG=noctalia-arm64
 RUN apk add --no-cache curl tar ca-certificates
 RUN mkdir -p /out && \
-    curl -fsSL "https://github.com/${NOCTALIA_RELEASE_REPO}/releases/download/${NOCTALIA_RELEASE_TAG}/noctalia-arm64.tar.gz" | tar -xz -C /out
+    curl -fsSL "https://github.com/${NOCTALIA_RELEASE_REPO}/releases/download/${NOCTALIA_RELEASE_TAG}/noctalia-ubuntu26-arm64.tar.gz" | tar -xz -C /out
 
 # Stage 4: Assemble rootfs
 FROM ubuntu:26.04 AS customizer
@@ -75,12 +75,13 @@ RUN printf '%s\n' \
 
 # 复制自定义脚本
 COPY scripts/download-firmware /usr/local/bin/
+COPY scripts/ds-diag /usr/local/bin/ds-diag
 COPY scripts/nosnap.sh /usr/local/sbin/nosnap
 COPY scripts/systemd257.sh /usr/local/sbin/systemd257
 COPY scripts/bashrc.sh /etc/profile.d/ds-aliases.sh
 COPY scripts/install-usb-manager.sh /usr/local/sbin/install-droidspaces-usb-manager
 
-RUN chmod +x /usr/local/bin/download-firmware /usr/local/sbin/nosnap /etc/profile.d/ds-aliases.sh
+RUN chmod +x /usr/local/bin/download-firmware /usr/local/bin/ds-diag /usr/local/sbin/nosnap /etc/profile.d/ds-aliases.sh
 
 # 复制 systemd services
 COPY scripts/start/niri.service /etc/systemd/system/
@@ -122,7 +123,7 @@ RUN apt-get update && \
     libxkbcommon0 libdrm2 libinput10 libudev1 libseat1 \
     libdisplay-info-dev \
     # Noctalia runtime libs
-    libsdbus-c++-dev libsodium-dev libsecret-1-dev \
+    libsdbus-c++-dev libsodium-dev libsecret-1-dev libxml2-dev \
     libpolkit-agent-1-dev libpolkit-gobject-1-dev libwireplumber-0.5-dev \
     libqalculate-dev libmd4c-dev libtomlplusplus-dev libical-dev \
     libwebp-dev libjxl-dev librsvg2-dev libjemalloc-dev \

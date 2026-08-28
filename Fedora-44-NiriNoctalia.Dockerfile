@@ -39,7 +39,7 @@ ARG NOCTALIA_RELEASE_REPO=DinhQuangDoi/noctalia-arm64
 ARG NOCTALIA_RELEASE_TAG=noctalia-arm64
 RUN apk add --no-cache curl tar ca-certificates
 RUN mkdir -p /out && \
-    curl -fsSL "https://github.com/${NOCTALIA_RELEASE_REPO}/releases/download/${NOCTALIA_RELEASE_TAG}/noctalia-arm64.tar.gz" | tar -xz -C /out
+    curl -fsSL "https://github.com/${NOCTALIA_RELEASE_REPO}/releases/download/${NOCTALIA_RELEASE_TAG}/noctalia-fedora44-arm64.tar.gz" | tar -xz -C /out
 
 # Stage 4: Assemble rootfs
 FROM fedora:44 AS customizer
@@ -71,6 +71,7 @@ RUN echo "max_parallel_downloads=10" >> /etc/dnf/dnf.conf && \
     echo "defaultyes=True" >> /etc/dnf/dnf.conf
 
 # 复制自定义脚本
+COPY scripts/ds-diag /usr/local/bin/ds-diag
 COPY scripts/install-usb-manager.sh /usr/local/sbin/install-droidspaces-usb-manager
 COPY scripts/systemd257.sh /usr/local/sbin/systemd257
 COPY scripts/install-anland-kde.sh /usr/local/sbin/install-anland-kde
@@ -80,7 +81,7 @@ COPY scripts/start/niri.service /etc/systemd/system/
 COPY scripts/start/noctalia.service /etc/systemd/system/
 COPY scripts/start/noctalia-launch /usr/local/bin/noctalia-launch
 
-RUN chmod +x /usr/local/sbin/install-anland-kde /usr/local/bin/noctalia-launch
+RUN chmod +x /usr/local/bin/ds-diag /usr/local/sbin/install-anland-kde /usr/local/bin/noctalia-launch
 
 # 安装基础依赖
 RUN dnf install -y --setopt=install_weak_deps=False \
@@ -99,7 +100,7 @@ RUN dnf install -y --setopt=install_weak_deps=False \
     libwayland-client libxkbcommon libdrm libinput libseat pipewire pipewire-pulse wireplumber \
     libdisplay-info mesa-libGLES mesa-libEGL \
     # Noctalia runtime libs
-    sdbus-cpp-devel libsodium libsodium-devel libsecret-devel \
+    sdbus-cpp-devel libsodium libsodium-devel libsecret-devel libxml2-devel \
     polkit-devel wireplumber-devel \
     libqalculate-devel md4c-devel tomlplusplus-devel libical libical-devel \
     libwebp-devel libjxl libjxl-devel librsvg2-devel jemalloc-devel \
