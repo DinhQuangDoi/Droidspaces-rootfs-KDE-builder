@@ -104,7 +104,8 @@ RUN pacman -S --noconfirm --needed \
 # SONAME 兼容 Symlinks (Noctalia 运行时)
 RUN ln -sf /usr/lib/libsodium.so /usr/lib/libsodium.so.23 2>/dev/null || true && \
     ln -sf /usr/lib/libical.so /usr/lib/libical.so.3 2>/dev/null || true && \
-    ln -sf /usr/lib/libjxl.so /usr/lib/libjxl.so.0.11 2>/dev/null || true
+    ln -sf /usr/lib/libjxl.so /usr/lib/libjxl.so.0.11 2>/dev/null || true && \
+    ln -sf /usr/lib/libcurl.so /usr/lib/libcurl-gnutls.so.4 2>/dev/null || true
 
 # 修复: 移除 GNOME Terminal & Nautilus desktop 文件的 OnlyShowIn
 RUN sed -i '/^OnlyShowIn=/d' /usr/share/applications/org.gnome.Terminal.desktop 2>/dev/null || true && \

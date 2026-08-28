@@ -355,12 +355,12 @@ jobs:
       - name: Verify build options
         run: |
           if [ "${{ inputs.build_KDE }}" = "none" ] && [ "${{ inputs.build_KDE_plus }}" = "true" ]; then
-            echo "❌ Error: Cannot enable KDE auto-start when KDE desktop choice is 'none'"
+            echo "Error: Cannot enable KDE auto-start when KDE desktop choice is 'none'"
             echo "Please re-run the workflow, uncheck 'KDE desktop auto-start on boot' or select a KDE desktop"
             exit 1
           fi
           if [ "${{ inputs.build_KDE }}" = "niri-noctalia" ] && [ "${{ inputs.build_KDE_plus }}" = "false" ]; then
-            echo "❌ Error: niri-noctalia mode requires auto-start enabled"
+            echo "Error: niri-noctalia mode requires auto-start enabled"
             echo "Please re-run the workflow, check 'KDE desktop auto-start on boot'"
             exit 1
           fi
