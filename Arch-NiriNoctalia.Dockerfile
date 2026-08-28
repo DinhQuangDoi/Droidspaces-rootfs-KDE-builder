@@ -92,7 +92,7 @@ RUN pacman -S --noconfirm --needed \
     kmod tzdata tar \
     # Wayland/图形栈
     wayland libxkbcommon mesa libinput seatd pipewire wireplumber \
-    libdisplay-info libcurl-compat \
+    libdisplay-info libcurl-gnutls \
     sdbus-cpp libsodium libsecret polkit wireplumber \
     libqalculate md4c tomlplusplus libical \
     libwebp libjxl librsvg jemalloc \
@@ -105,7 +105,8 @@ RUN pacman -S --noconfirm --needed \
 RUN ln -sf /usr/lib/libsodium.so /usr/lib/libsodium.so.23 2>/dev/null || true && \
     ln -sf /usr/lib/libical.so /usr/lib/libical.so.3 2>/dev/null || true && \
     ln -sf /usr/lib/libjxl.so /usr/lib/libjxl.so.0.11 2>/dev/null || true && \
-    ln -sf /usr/lib/libcurl.so /usr/lib/libcurl-gnutls.so.4 2>/dev/null || true
+    ln -sf /usr/lib/libjxl_threads.so /usr/lib/libjxl_threads.so.0.11 2>/dev/null || true && \
+    ln -sf /usr/lib/libxml2.so /usr/lib/libxml2.so.2 2>/dev/null || true
 
 # 修复: 移除 GNOME Terminal & Nautilus desktop 文件的 OnlyShowIn
 RUN sed -i '/^OnlyShowIn=/d' /usr/share/applications/org.gnome.Terminal.desktop 2>/dev/null || true && \
