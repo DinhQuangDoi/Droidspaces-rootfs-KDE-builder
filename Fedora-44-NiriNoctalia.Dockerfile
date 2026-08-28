@@ -33,13 +33,40 @@ RUN cargo build --release --bin niri && \
     mkdir -p /out/niri && \
     cp target/release/niri /out/niri/
 
-# Stage 3: Download pre-built noctalia release
-FROM alpine:latest AS noctalia-downloader
-ARG NOCTALIA_RELEASE_REPO=DinhQuangDoi/noctalia-arm64
-ARG NOCTALIA_RELEASE_TAG=noctalia-arm64
-RUN apk add --no-cache curl tar ca-certificates
-RUN mkdir -p /out && \
-    curl -fsSL "https://github.com/${NOCTALIA_RELEASE_REPO}/releases/download/${NOCTALIA_RELEASE_TAG}/noctalia-arm64.tar.gz" | tar -xz -C /out
+# Stage 3: Build noctalia from fork
+FROM fedora:44 AS noctalia-builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+ARG NOCTALIA_REPO=https://github.com/DinhQuangDoi/noctalia-arm64.git
+ARG NOCTALIA_BRANCH=main
+
+RUN dnf install -y --setopt=install_weak_deps=False \
+    meson gcc-c++ just \
+    wayland-devel wayland-protocols-devel \
+    mesa-libEGL-devel mesa-libGLES-devel \
+    freetype-devel fontconfig-devel \
+    cairo-devel pango-devel harfbuzz-devel \
+    libxkbcommon-devel glib2-devel \
+    libsecret-devel libsodium-devel \
+    sdbus-cpp-devel pipewire-devel wireplumber-devel \
+    pam-devel polkit-devel libcurl-devel libwebp-devel libjxl-devel libsndfile-devel librsvg2-devel \
+    libqalculate-devel libxml2-devel \
+    md4c-devel tomlplusplus-devel libical-devel \
+    nlohmann-json-devel stb-devel \
+    jemalloc-devel \
+    ninja-build pkgconfig \
+    ca-certificates \
+    git \
+    && dnf clean all
+
+WORKDIR /build
+RUN git clone --depth=1 --branch ${NOCTALIA_BRANCH} ${NOCTALIA_REPO} noctalia
+WORKDIR /build/noctalia
+
+RUN meson setup build-release --buildtype=release --prefix=/usr -Dnative_optimizations=false && \
+    meson compile -C build-release && \
+    mkdir -p /out/noctalia && \
+    DESTDIR=/out/noctalia meson install -C build-release
 
 # Stage 4: Assemble rootfs
 FROM fedora:44 AS customizer
@@ -117,9 +144,9 @@ RUN sed -i '/^OnlyShowIn=/d' /usr/share/applications/org.gnome.Terminal.desktop 
 
 # 复制构建产物
 COPY --from=niri-builder /out/niri/niri /usr/local/bin/niri
-COPY --from=noctalia-downloader /out/usr/local/bin/noctalia /usr/local/bin/noctalia
-COPY --from=noctalia-downloader /out/usr/local/share/noctalia /usr/local/share/noctalia
-COPY --from=noctalia-downloader /out/usr/share/noctalia /usr/share/noctalia
+COPY --from=noctalia-builder /out/noctalia/usr/bin/noctalia /usr/local/bin/noctalia
+COPY --from=noctalia-builder /out/noctalia/usr/share/noctalia /usr/local/share/noctalia
+COPY --from=noctalia-builder /out/noctalia/usr/share/noctalia /usr/share/noctalia
 
 RUN chmod +x /usr/local/bin/niri /usr/local/bin/noctalia /usr/local/bin/noctalia-launch && \
     ln -sf /usr/local/bin/niri /usr/bin/niri && \
