@@ -338,11 +338,13 @@ binds {
     // shows a list of important hotkeys.
     Mod+Shift+Slash { show-hotkey-overlay; }
 
-    // Suggested binds for running programs: terminal, app launcher, screen locker.
+    // Suggested binds for running programs: terminal, app launcher, screen locker, file manager.
     Mod+T hotkey-overlay-title="Open a Terminal: gnome-terminal" { spawn "gnome-terminal"; }
     Mod+Shift+T hotkey-overlay-title="Open a Terminal: gnome-terminal" { spawn "gnome-terminal"; }
-    Mod+D hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
-    Super+Alt+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "swaylock"; }
+    Mod+D hotkey-overlay-title="Run Application Launcher" { spawn "noctalia-launcher"; }
+    Mod+E hotkey-overlay-title="Open File Manager: nautilus" { spawn "nautilus"; }
+    Super+Space hotkey-overlay-title="Toggle Application Launcher" { spawn "noctalia-launcher"; }
+    Super+Alt+L hotkey-overlay-title="Lock the Screen" { spawn "noctalia-lock"; }
 
     // Use spawn-sh to run a shell command. Do this if you need pipes, multiple commands, etc.
     // Note: the entire command goes as a single argument. It's passed verbatim to `sh -c`.

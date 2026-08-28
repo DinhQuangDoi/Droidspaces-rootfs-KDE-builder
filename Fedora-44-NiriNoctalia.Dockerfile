@@ -104,12 +104,16 @@ RUN dnf install -y --setopt=install_weak_deps=False \
     libqalculate-devel md4c-devel tomlplusplus-devel libical-devel \
     libwebp-devel libjxl-devel librsvg2-devel jemalloc-devel \
     google-noto-cjk-fonts google-noto-emoji-color-fonts \
-    alacritty rofi pcmanfm \
+    alacritty gnome-terminal nautilus btop papirus-icon-theme python3-pyqt6 qt6-qtwayland \
     lxappearance qt6ct && \
     echo "%_install_langs all" > /etc/rpm/macros.image-language-conf && \
     dnf upgrade -y && \
     dnf clean all && \
     rm -rf /var/cache/dnf
+
+# 修复: 移除 GNOME Terminal & Nautilus desktop 文件的 OnlyShowIn
+RUN sed -i '/^OnlyShowIn=/d' /usr/share/applications/org.gnome.Terminal.desktop 2>/dev/null || true && \
+    sed -i '/^OnlyShowIn=/d' /usr/share/applications/org.gnome.Nautilus.desktop 2>/dev/null || true
 
 # 复制构建产物
 COPY --from=niri-builder /out/niri/niri /usr/local/bin/niri

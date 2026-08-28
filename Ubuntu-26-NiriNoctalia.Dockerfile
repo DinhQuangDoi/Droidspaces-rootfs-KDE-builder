@@ -130,7 +130,7 @@ RUN apt-get update && \
     # 字体
     fonts-noto-cjk fonts-noto-color-emoji \
     # 实用工具
-    gnome-terminal rofi nautilus btop vim glmark2 mesa-utils vulkan-tools \
+    alacritty gnome-terminal nautilus btop vim glmark2 mesa-utils vulkan-tools \
     # 主题工具 + 图标主题
     lxappearance qt6ct papirus-icon-theme \
     # niri-settings GUI (PyQt6 配置工具)
@@ -149,9 +149,10 @@ RUN curl -fsSL https://brave-browser-apt-release.s3.brave.com/brave-browser-arch
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# 修复: 移除 GNOME Terminal desktop 文件的 OnlyShowIn=GNOME;Unity;，
+# 修复: 移除 GNOME Terminal & Nautilus desktop 文件的 OnlyShowIn=GNOME;Unity;，
 # 使 niri/noctalia 等非 GNOME 环境的 launcher 能解析并启动该应用
-RUN sed -i '/^OnlyShowIn=/d' /usr/share/applications/org.gnome.Terminal.desktop
+RUN sed -i '/^OnlyShowIn=/d' /usr/share/applications/org.gnome.Terminal.desktop 2>/dev/null || true && \
+    sed -i '/^OnlyShowIn=/d' /usr/share/applications/org.gnome.Nautilus.desktop 2>/dev/null || true
 
 # Icon 主题: Papirus-Dark (社区广泛使用的 Material/Flat icon pack) + GTK 全局配置
 RUN apt-get update && \

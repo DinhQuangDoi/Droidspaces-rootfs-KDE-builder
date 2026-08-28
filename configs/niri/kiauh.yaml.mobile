@@ -48,8 +48,8 @@ bindings:
   - { key: "Return", mods: ["Super", "Shift"], action: "spawn", command: "gnome-terminal" }
   # Launcher (rofi via noctalia)
   - { key: "Space", mods: ["Super"], action: "spawn", command: "noctalia-launcher" }
-  # File manager
-  - { key: "E", mods: ["Super"], action: "spawn", command: "pcmanfm" }
+  # File manager (nautilus)
+  - { key: "E", mods: ["Super"], action: "spawn", command: "nautilus" }
   # Close window
   - { key: "W", mods: ["Super"], action: "close_window" }
   # Fullscreen

@@ -97,9 +97,13 @@ RUN pacman -S --noconfirm --needed \
     libqalculate md4c tomlplusplus libical \
     libwebp libjxl librsvg jemalloc \
     noto-fonts-cjk noto-fonts-emoji \
-    alacritty gnome-terminal rofi pcmanfm \
+    alacritty gnome-terminal nautilus btop papirus-icon-theme python-pyqt6 qt6-wayland \
     lxappearance qt6ct && \
     pacman -Sc --noconfirm
+
+# 修复: 移除 GNOME Terminal & Nautilus desktop 文件的 OnlyShowIn
+RUN sed -i '/^OnlyShowIn=/d' /usr/share/applications/org.gnome.Terminal.desktop 2>/dev/null || true && \
+    sed -i '/^OnlyShowIn=/d' /usr/share/applications/org.gnome.Nautilus.desktop 2>/dev/null || true
 
 # 复制构建产物
 COPY --from=niri-builder /out/niri/niri /usr/local/bin/niri
