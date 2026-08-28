@@ -78,8 +78,9 @@ COPY scripts/install-anland-kde.sh /usr/local/sbin/install-anland-kde
 # 复制 systemd services
 COPY scripts/start/niri.service /etc/systemd/system/
 COPY scripts/start/noctalia.service /etc/systemd/system/
+COPY scripts/start/noctalia-launch /usr/local/bin/noctalia-launch
 
-RUN chmod +x /usr/local/sbin/install-anland-kde
+RUN chmod +x /usr/local/sbin/install-anland-kde /usr/local/bin/noctalia-launch
 
 # 安装基础依赖
 RUN dnf install -y --setopt=install_weak_deps=False \
@@ -95,7 +96,7 @@ RUN dnf install -y --setopt=install_weak_deps=False \
     kmod tzdata tar glibc-locale-source glibc-langpack-en glibc-langpack-zh && \
     # Wayland/图形栈运行时
     dnf install -y --setopt=install_weak_deps=False \
-    libwayland-client wayland libxkbcommon libdrm libinput libseat pipewire pipewire-pulse wireplumber \
+    libwayland-client libxkbcommon libdrm libinput libseat pipewire pipewire-pulse wireplumber \
     libdisplay-info \
     # Noctalia runtime libs
     sdbus-cpp-devel libsodium-devel libsecret-devel \
@@ -115,6 +116,8 @@ COPY --from=niri-builder /out/niri/niri /usr/local/bin/niri
 COPY --from=noctalia-downloader /out/usr/local/bin/noctalia /usr/local/bin/noctalia
 COPY --from=noctalia-downloader /out/usr/local/share/noctalia /usr/local/share/noctalia
 COPY --from=noctalia-downloader /out/usr/share/noctalia /usr/share/noctalia
+
+RUN chmod +x /usr/local/bin/niri /usr/local/bin/noctalia /usr/local/bin/noctalia-launch
 
 # 复制配置文件
 COPY configs/noctalia/config.toml.mobile /etc/xdg/noctalia/config.toml

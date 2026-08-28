@@ -83,6 +83,9 @@ RUN chmod +x /usr/local/bin/download-firmware /etc/profile.d/ds-aliases.sh
 # 复制 systemd services
 COPY scripts/start/niri.service /etc/systemd/system/
 COPY scripts/start/noctalia.service /etc/systemd/system/
+COPY scripts/start/noctalia-launch /usr/local/bin/noctalia-launch
+
+RUN chmod +x /usr/local/bin/noctalia-launch
 
 # 安装基础依赖
 RUN sed -i 's/main/main contrib non-free/g' /etc/apt/sources.list 2>/dev/null || \
@@ -128,6 +131,8 @@ COPY --from=niri-builder /out/niri/niri /usr/local/bin/niri
 COPY --from=noctalia-downloader /out/usr/local/bin/noctalia /usr/local/bin/noctalia
 COPY --from=noctalia-downloader /out/usr/local/share/noctalia /usr/local/share/noctalia
 COPY --from=noctalia-downloader /out/usr/share/noctalia /usr/share/noctalia
+
+RUN chmod +x /usr/local/bin/niri /usr/local/bin/noctalia /usr/local/bin/noctalia-launch
 
 # 复制配置文件
 COPY configs/noctalia/config.toml.mobile /etc/xdg/noctalia/config.toml
