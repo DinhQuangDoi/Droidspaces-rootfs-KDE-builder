@@ -32,46 +32,13 @@ RUN cargo build --release --bin niri && \
     mkdir -p /out/niri && \
     cp target/release/niri /out/niri/
 
-# Stage 3: Build noctalia from fork
-FROM ubuntu:26.04 AS noctalia-builder
-
-ENV DEBIAN_FRONTEND=noninteractive
-ARG NOCTALIA_REPO=https://github.com/DinhQuangDoi/noctalia-arm64.git
-ARG NOCTALIA_BRANCH=main
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    meson g++ just \
-    libwayland-dev wayland-protocols \
-    libegl-dev libgles-dev \
-    libfreetype-dev libfontconfig-dev \
-    libcairo2-dev libpango1.0-dev libharfbuzz-dev \
-    libxkbcommon-dev libglib2.0-dev \
-    libsecret-1-dev libsodium-dev \
-    libsdbus-c++-dev libpipewire-0.3-dev libwireplumber-0.5-dev \
-    libpam0g-dev libpolkit-agent-1-dev libpolkit-gobject-1-dev \
-    libcurl4-gnutls-dev libwebp-dev libjxl-dev libsndfile1-dev librsvg2-dev \
-    libqalculate-dev libxml2-dev \
-    libmd4c-dev libtomlplusplus-dev libical-dev \
-    nlohmann-json3-dev libstb-dev \
-    libjemalloc-dev \
-    ninja-build pkg-config \
-    ca-certificates \
-    git \
-    && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /build
-RUN git clone --depth=1 --branch ${NOCTALIA_BRANCH} ${NOCTALIA_REPO} noctalia
-WORKDIR /build/noctalia
-
-RUN git clone --depth 1 --branch 1.47 https://gitlab.freedesktop.org/wayland/wayland-protocols.git /tmp/wayland-protocols && \
-    meson setup /tmp/wayland-protocols/build /tmp/wayland-protocols --prefix=/usr -Dtests=false && \
-    ninja -C /tmp/wayland-protocols/build install && \
-    rm -rf /tmp/wayland-protocols
-
-RUN meson setup build-release --buildtype=release --prefix=/usr -Dnative_optimizations=false && \
-    meson compile -C build-release && \
-    mkdir -p /out/noctalia && \
-    DESTDIR=/out/noctalia meson install -C build-release
+# Stage 3: Download pre-built noctalia release (3 seconds)
+FROM alpine:latest AS noctalia-downloader
+ARG NOCTALIA_RELEASE_REPO=DinhQuangDoi/noctalia-arm64
+ARG NOCTALIA_RELEASE_TAG=noctalia-arm64
+RUN apk add --no-cache curl tar ca-certificates
+RUN mkdir -p /out && \
+    curl -fsSL "https://github.com/${NOCTALIA_RELEASE_REPO}/releases/download/${NOCTALIA_RELEASE_TAG}/noctalia-arm64.tar.gz" | tar -xz -C /out
 
 # Stage 4: Assemble rootfs
 FROM ubuntu:26.04 AS customizer
@@ -214,9 +181,9 @@ RUN git clone --depth=1 https://github.com/stefonarch/niri-settings /tmp/niri-se
 
 # 复制构建产物
 COPY --from=niri-builder /out/niri/niri /usr/local/bin/niri
-COPY --from=noctalia-builder /out/noctalia/usr/bin/noctalia /usr/local/bin/noctalia
-COPY --from=noctalia-builder /out/noctalia/usr/share/noctalia /usr/local/share/noctalia
-COPY --from=noctalia-builder /out/noctalia/usr/share/noctalia /usr/share/noctalia
+COPY --from=noctalia-downloader /out/usr/local/bin/noctalia /usr/local/bin/noctalia
+COPY --from=noctalia-downloader /out/usr/local/share/noctalia /usr/local/share/noctalia
+COPY --from=noctalia-downloader /out/usr/share/noctalia /usr/share/noctalia
 
 RUN chmod +x /usr/local/bin/niri /usr/local/bin/noctalia /usr/local/bin/noctalia-launch && \
     ln -sf /usr/local/bin/niri /usr/bin/niri && \
