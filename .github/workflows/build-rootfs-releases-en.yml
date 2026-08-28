@@ -19,6 +19,11 @@ on:
           - 'all'
           - 'all-wayland'
           - 'all-niri-noctalia'
+      override_build_id:
+        description: 'Override Build ID (e.g. v20260828-053144)'
+        required: false
+        type: string
+        default: ''
       custom_username:
         description: 'Custom username (default Gold)'
         required: false
@@ -254,7 +259,12 @@ jobs:
         id: prep
         run: |
           BUILD_DATE=$(date +'%Y-%m-%d %H:%M:%S')
-          BUILD_ID="v$(date +'%Y%m%d-%H%M%S')"
+          OVERRIDE_ID="${{ inputs.override_build_id }}"
+          if [ -n "$OVERRIDE_ID" ]; then
+            BUILD_ID="$OVERRIDE_ID"
+          else
+            BUILD_ID="v$(date +'%Y%m%d-%H%M%S')"
+          fi
           echo "BUILD_DATE=$BUILD_DATE" >> $GITHUB_OUTPUT
           echo "BUILD_ID=$BUILD_ID" >> $GITHUB_OUTPUT
           echo "Build ID: $BUILD_ID"
@@ -506,7 +516,8 @@ jobs:
             sed -i "s/USERNAME=\"Gold\"/USERNAME=\"${CUSTOM_USERNAME}\"/g" "release_assets/on_aaudio_${PA_CHOICE}.sh"
           fi
           
-      - name: Delete previous rootfs-dev rolling Release
+      - name: Delete previous rootfs-dev rolling Release (full matrix build only)
+        if: ${{ inputs.build_target == 'all' || inputs.build_target == 'all-wayland' || inputs.build_target == 'all-niri-noctalia' }}
         run: gh release delete rootfs-dev --repo "${{ github.repository }}" --yes --cleanup-tag || true
         env:
           GH_TOKEN: ${{ github.token }}
