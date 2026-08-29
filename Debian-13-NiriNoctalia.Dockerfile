@@ -120,20 +120,10 @@ RUN apt-get update && \
     # 字体
     fonts-noto-cjk fonts-noto-color-emoji \
     # 实用工具
-    gnome-terminal nautilus btop papirus-icon-theme python3-pyqt6 qt6-wayland \
+    gnome-terminal nautilus btop firefox papirus-icon-theme python3-pyqt6 qt6-wayland \
     # 主题工具
     lxappearance qt6ct \
     && apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Brave Browser repository (after curl/gnupg installed)
-RUN curl -fsSL https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg | \
-    gpg --dearmor -o /usr/share/keyrings/brave-browser-archive-keyring.gpg && \
-    curl -fsSL https://brave-browser-apt-release.s3.brave.com/brave-browser.sources | \
-    tee /etc/apt/sources.list.d/brave-browser-release.sources > /dev/null && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends brave-browser && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -214,6 +204,7 @@ XDG_RUNTIME_DIR=/run/user/1000
 XDG_SESSION_TYPE=wayland
 WAYLAND_DISPLAY=wayland-1
 QT_QPA_PLATFORM=wayland
+MOZ_ENABLE_WAYLAND=1
 GTK_THEME=Adwaita:dark
 GTK_A11Y=none
 NO_AT_BRIDGE=1
@@ -386,10 +377,6 @@ if [ -f /etc/logrotate.conf ]; then
     if ! grep -q "maxsize 50M" /etc/logrotate.conf; then
         echo "maxsize 50M" >> /etc/logrotate.conf
     fi
-fi
-
-if [ -f /opt/brave.com/brave/brave-browser ]; then
-    sed -i 's|"$HERE/brave" "$@" || true|"$HERE/brave" --ozone-platform=wayland "$@" || true|' /opt/brave.com/brave/brave-browser
 fi
 
 echo "Post-extraction fixes applied on $(date)" > /etc/droidspaces

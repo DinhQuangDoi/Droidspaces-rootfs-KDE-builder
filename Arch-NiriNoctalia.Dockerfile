@@ -99,7 +99,7 @@ RUN pacman -S --noconfirm --needed \
     libqalculate md4c tomlplusplus libical \
     libwebp libjxl librsvg jemalloc \
     noto-fonts-cjk noto-fonts-emoji \
-    gnome-terminal nautilus btop papirus-icon-theme python-pyqt6 qt6-wayland \
+    gnome-terminal nautilus btop firefox papirus-icon-theme python-pyqt6 qt6-wayland \
     lxappearance qt6ct && \
     pacman -Sc --noconfirm
 
@@ -186,6 +186,7 @@ XDG_RUNTIME_DIR=/run/user/1000
 XDG_SESSION_TYPE=wayland
 WAYLAND_DISPLAY=wayland-1
 QT_QPA_PLATFORM=wayland
+MOZ_ENABLE_WAYLAND=1
 GTK_THEME=Adwaita:dark
 GTK_A11Y=none
 NO_AT_BRIDGE=1
