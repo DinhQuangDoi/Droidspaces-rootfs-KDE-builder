@@ -99,7 +99,7 @@ RUN pacman -S --noconfirm --needed \
     libqalculate md4c tomlplusplus libical \
     libwebp libjxl librsvg jemalloc \
     noto-fonts-cjk noto-fonts-emoji \
-    gnome-terminal nautilus btop firefox papirus-icon-theme python-pyqt6 qt6-wayland \
+    gnome-terminal nautilus btop firefox vkmark papirus-icon-theme python-pyqt6 qt6-wayland \
     lxappearance qt6ct && \
     pacman -Sc --noconfirm
 
