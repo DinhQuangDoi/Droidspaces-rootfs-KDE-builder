@@ -343,6 +343,7 @@ binds {
     Mod+Shift+T hotkey-overlay-title="Open a Terminal: gnome-terminal" { spawn "gnome-terminal"; }
     Mod+D hotkey-overlay-title="Run Application Launcher" { spawn "noctalia-launcher"; }
     Mod+E hotkey-overlay-title="Open File Manager: nautilus" { spawn "nautilus"; }
+    Mod+Comma hotkey-overlay-title="Open Niri Settings GUI" { spawn "niri-settings"; }
     Super+Space hotkey-overlay-title="Toggle Application Launcher" { spawn "noctalia-launcher"; }
     Super+Alt+L hotkey-overlay-title="Lock the Screen" { spawn "noctalia-lock"; }
 
